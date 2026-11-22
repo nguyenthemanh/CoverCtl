@@ -773,6 +773,90 @@
                     android:text="@string/btn_restore_nav" />
             </LinearLayout>
 
+            <!-- One Hand / Edge (OHO+ style for cover) -->
+            <TextView
+                style="@style/TextAppearance.CoverCtl.Section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/section_one_hand" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_glass_card"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_one_hand"
+                    android:textAppearance="@style/TextAppearance.CoverCtl.Body"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchEdgeGestures"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/btn_edge_gestures" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchEdgeBoth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_edge_both" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchShowNavBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_show_nav_bar" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnApplyEdgePreset"
+                    style="@style/Widget.CoverCtl.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/btn_apply_edge_preset" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOpenOho"
+                    style="@style/Widget.CoverCtl.Button.Outline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/btn_open_oho" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOpenGoodLock"
+                    style="@style/Widget.CoverCtl.Button.Outline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/btn_open_goodlock" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOpenMultistar"
+                    style="@style/Widget.CoverCtl.Button.Outline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/btn_open_multistar" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEnableEdgePanel"
+                    style="@style/Widget.CoverCtl.Button.Tonal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/btn_enable_edge_panel" />
+            </LinearLayout>
+
             <!-- Scale -->
             <TextView
                 style="@style/TextAppearance.CoverCtl.Section"

@@ -110,6 +110,19 @@
     <string name="cmd_mode_main">Main 模式</string>
     <string name="cmd_mode_cover">Cover 模式</string>
     <string name="cmd_mode_dual">Dual 模式</string>
+    <string name="section_one_hand">单手 / 边缘手势（外屏）</string>
+    <string name="hint_one_hand">三星 One Hand Operation+ 不支持 Flip 外屏。CoverCtl 提供类似 OHO+ 的边缘手势：短滑 = 返回/主页/最近任务；长滑 = 通知 / 快捷面板 / 熄屏。仍可打开 Good Lock / MultiStar / 安装 OHO+ 用于主屏。</string>
+    <string name="btn_edge_gestures">启外屏边缘手势</string>
+    <string name="btn_edge_both">两侧边缘（左+右）</string>
+    <string name="btn_show_nav_bar">显示返回/主页/最近任务栏</string>
+    <string name="btn_apply_edge_preset">应用外屏预设（Dual + 手势 + 导航）</string>
+    <string name="btn_open_oho">打开 / 安装 One Hand Operation+</string>
+    <string name="btn_open_goodlock">打开 Good Lock</string>
+    <string name="btn_open_multistar">打开 MultiStar（外屏应用）</string>
+    <string name="btn_enable_edge_panel">启用三星 Edge 面板</string>
+    <string name="cmd_edge_preset">应用 One Hand 外屏预设</string>
+    <string name="cmd_edge_panel">启用 Edge 面板</string>
+    <string name="toast_edge_on">已启外屏边缘手势</string>
     <string name="section_cover_scale">外屏界面缩放</string>
     <string name="dpi_value">DPI：%1$d</string>
     <string name="btn_small">小</string>

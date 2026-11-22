@@ -110,6 +110,19 @@
     <string name="cmd_mode_main">Chế độ Main</string>
     <string name="cmd_mode_cover">Chế độ Cover</string>
     <string name="cmd_mode_dual">Chế độ Dual</string>
+    <string name="section_one_hand">One Hand / Gesture cạnh (cover)</string>
+    <string name="hint_one_hand">Samsung One Hand Operation+ không chạy trên cover Flip. CoverCtl có gesture cạnh riêng (kiểu OHO+): vuốt ngắn = Back/Home/Recents; vuốt dài = thông báo / QS / tắt màn. Có thể mở Good Lock / MultiStar / cài OHO+ cho màn chính.</string>
+    <string name="btn_edge_gestures">Bật gesture cạnh trên cover</string>
+    <string name="btn_edge_both">Hai cạnh (trái + phải)</string>
+    <string name="btn_show_nav_bar">Hiện thanh Back/Home/Recents</string>
+    <string name="btn_apply_edge_preset">Áp preset cover (Dual + gesture + nav)</string>
+    <string name="btn_open_oho">Mở / cài One Hand Operation+</string>
+    <string name="btn_open_goodlock">Mở Good Lock</string>
+    <string name="btn_open_multistar">Mở MultiStar (app cover)</string>
+    <string name="btn_enable_edge_panel">Bật Edge panel Samsung</string>
+    <string name="cmd_edge_preset">Áp preset One Hand cover</string>
+    <string name="cmd_edge_panel">Bật Edge panel</string>
+    <string name="toast_edge_on">Đã bật gesture cạnh trên cover</string>
     <string name="section_cover_scale">Thu / phóng giao diện màn ngoài</string>
     <string name="dpi_value">DPI: %1$d</string>
     <string name="btn_small">Nhỏ</string>

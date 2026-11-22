@@ -15,9 +15,33 @@ object Prefs {
     private const val KEY_SCREEN_MODE = "screen_mode"
     private const val KEY_KEEP_DUAL = "keep_dual"
     private const val KEY_KEEP_DUAL_STATE = "keep_dual_state"
+    private const val KEY_EDGE_GESTURES = "edge_gestures"
+    private const val KEY_EDGE_BOTH_SIDES = "edge_both_sides"
+    private const val KEY_SHOW_NAV_BAR = "show_nav_bar"
 
     private fun sp(context: Context) =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
+
+    fun edgeGestures(context: Context): Boolean =
+        sp(context).getBoolean(KEY_EDGE_GESTURES, true)
+
+    fun setEdgeGestures(context: Context, enabled: Boolean) {
+        sp(context).edit().putBoolean(KEY_EDGE_GESTURES, enabled).apply()
+    }
+
+    fun edgeBothSides(context: Context): Boolean =
+        sp(context).getBoolean(KEY_EDGE_BOTH_SIDES, true)
+
+    fun setEdgeBothSides(context: Context, both: Boolean) {
+        sp(context).edit().putBoolean(KEY_EDGE_BOTH_SIDES, both).apply()
+    }
+
+    fun showNavBar(context: Context): Boolean =
+        sp(context).getBoolean(KEY_SHOW_NAV_BAR, true)
+
+    fun setShowNavBar(context: Context, show: Boolean) {
+        sp(context).edit().putBoolean(KEY_SHOW_NAV_BAR, show).apply()
+    }
 
     fun screenMode(context: Context): String =
         sp(context).getString(KEY_SCREEN_MODE, ScreenModes.Mode.MAIN.id) ?: ScreenModes.Mode.MAIN.id

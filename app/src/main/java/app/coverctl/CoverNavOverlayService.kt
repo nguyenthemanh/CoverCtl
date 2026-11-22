@@ -53,6 +53,8 @@ class CoverNavOverlayService : Service() {
     private var windowManager: WindowManager? = null
     private var navBar: View? = null
     private var floatBtn: View? = null
+    private var leftEdge: View? = null
+    private var rightEdge: View? = null
     private var mode: String = "dual"
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -60,7 +62,8 @@ class CoverNavOverlayService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         mode = intent?.getStringExtra(EXTRA_MODE) ?: Prefs.screenMode(this)
         startAsForeground()
-        if (navBar == null) showOverlays()
+        removeOverlays()
+        showOverlays()
         return START_STICKY
     }
 
@@ -106,8 +109,44 @@ class CoverNavOverlayService : Service() {
             .createWindowContext(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, null)
         windowManager = ctx.getSystemService(WindowManager::class.java)
 
-        addNavBar(ctx)
+        if (Prefs.showNavBar(this)) addNavBar(ctx)
+        if (Prefs.edgeGestures(this)) {
+            addEdgeHandle(ctx, left = true)
+            if (Prefs.edgeBothSides(this)) addEdgeHandle(ctx, left = false)
+        }
         addFloatButton(ctx)
+    }
+
+    /**
+     * Handle cạnh kiểu One Hand Operation+:
+     * ngắn ngang = Back, ngắn lên = Home, ngắn xuống = Recents;
+     * dài ngang = thông báo, dài lên = QS, dài xuống = tắt màn.
+     */
+    private fun addEdgeHandle(ctx: Context, left: Boolean) {
+        val width = dp(ctx, 22)
+        val height = dp(ctx, 220)
+        val handle = View(ctx).apply {
+            background = GradientDrawable().apply {
+                setColor(0x66007AFF)
+                cornerRadius = dp(ctx, 10).toFloat()
+            }
+            alpha = 0.55f
+        }
+        val params = WindowManager.LayoutParams(
+            width, height,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = if (left) Gravity.CENTER_VERTICAL or Gravity.START
+            else Gravity.CENTER_VERTICAL or Gravity.END
+            x = dp(ctx, 2)
+        }
+        handle.setOnTouchListener(EdgeSwipeListener(left))
+        windowManager?.addView(handle, params)
+        if (left) leftEdge = handle else rightEdge = handle
     }
 
     private fun addNavBar(ctx: Context) {
@@ -201,17 +240,74 @@ class CoverNavOverlayService : Service() {
     }
 
     private fun removeOverlays() {
-        try {
-            navBar?.let { windowManager?.removeView(it) }
-        } catch (_: Exception) {
-        }
-        try {
-            floatBtn?.let { windowManager?.removeView(it) }
-        } catch (_: Exception) {
+        listOf(navBar, floatBtn, leftEdge, rightEdge).forEach { v ->
+            try {
+                v?.let { windowManager?.removeView(it) }
+            } catch (_: Exception) {
+            }
         }
         navBar = null
         floatBtn = null
+        leftEdge = null
+        rightEdge = null
         windowManager = null
+    }
+
+    private fun runGestureAction(action: String) {
+        thread {
+            Shell.mode = Prefs.privilegeMode(this)
+            when (action) {
+                "back" -> Shell.exec("input keyevent 4")
+                "home" -> CoverCommands.openLauncherOnCover(
+                    DeviceProfile.fromId(Prefs.profileId(this))
+                )
+                "recents" -> Shell.exec("input keyevent 187")
+                "notif" -> Shell.exec("cmd statusbar expand-notifications")
+                "qs" -> Shell.exec("cmd statusbar expand-settings")
+                "screen_off" -> Shell.exec("input keyevent 26")
+                "prev_app" -> Shell.exec("input keyevent 187; sleep 0.15; input keyevent 61; input keyevent 66")
+            }
+        }
+    }
+
+    /** Swipe từ cạnh: OHO+-style. */
+    private inner class EdgeSwipeListener(private val fromLeft: Boolean) : View.OnTouchListener {
+        private var startX = 0f
+        private var startY = 0f
+        private var tracking = false
+
+        override fun onTouch(v: View, event: MotionEvent): Boolean {
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    startX = event.rawX
+                    startY = event.rawY
+                    tracking = true
+                    v.alpha = 0.9f
+                    return true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    v.alpha = 0.55f
+                    if (!tracking) return true
+                    tracking = false
+                    val dx = event.rawX - startX
+                    val dy = event.rawY - startY
+                    val inward = if (fromLeft) dx > 0 else dx < 0
+                    val dist = kotlin.math.hypot(dx.toDouble(), dy.toDouble()).toFloat()
+                    if (!inward || dist < dp(v.context, 28)) return true
+                    val longSwipe = dist > dp(v.context, 90)
+                    val absDx = kotlin.math.abs(dx)
+                    val absDy = kotlin.math.abs(dy)
+                    val action = when {
+                        absDy > absDx * 1.1f && dy < 0 -> if (longSwipe) "qs" else "home"
+                        absDy > absDx * 1.1f && dy > 0 -> if (longSwipe) "screen_off" else "recents"
+                        else -> if (longSwipe) "notif" else "back"
+                    }
+                    runGestureAction(action)
+                    return true
+                }
+            }
+            return true
+        }
     }
 
     private fun dp(ctx: Context, v: Int): Int =

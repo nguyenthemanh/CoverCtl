@@ -204,6 +204,47 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        binding.switchEdgeGestures.isChecked = Prefs.edgeGestures(this)
+        binding.switchEdgeBoth.isChecked = Prefs.edgeBothSides(this)
+        binding.switchShowNavBar.isChecked = Prefs.showNavBar(this)
+        binding.switchEdgeGestures.setOnCheckedChangeListener { _, checked ->
+            Prefs.setEdgeGestures(this, checked)
+            restartCoverOverlayIfNeeded()
+        }
+        binding.switchEdgeBoth.setOnCheckedChangeListener { _, checked ->
+            Prefs.setEdgeBothSides(this, checked)
+            restartCoverOverlayIfNeeded()
+        }
+        binding.switchShowNavBar.setOnCheckedChangeListener { _, checked ->
+            Prefs.setShowNavBar(this, checked)
+            restartCoverOverlayIfNeeded()
+        }
+        binding.btnApplyEdgePreset.setOnClickListener {
+            Prefs.setEdgeGestures(this, true)
+            Prefs.setEdgeBothSides(this, true)
+            Prefs.setShowNavBar(this, true)
+            Prefs.setKeepDual(this, true)
+            binding.switchEdgeGestures.isChecked = true
+            binding.switchEdgeBoth.isChecked = true
+            binding.switchShowNavBar.isChecked = true
+            applyScreenMode(ScreenModes.Mode.DUAL)
+            toast(getString(R.string.toast_edge_on))
+        }
+        binding.btnOpenOho.setOnClickListener {
+            SamsungAssistCommands.openOrStore(this, SamsungAssistCommands.PKG_OHO)
+        }
+        binding.btnOpenGoodLock.setOnClickListener {
+            SamsungAssistCommands.openOrStore(this, SamsungAssistCommands.PKG_GOODLOCK)
+        }
+        binding.btnOpenMultistar.setOnClickListener {
+            SamsungAssistCommands.openOrStore(this, SamsungAssistCommands.PKG_MULTISTAR)
+        }
+        binding.btnEnableEdgePanel.setOnClickListener {
+            runCmd(getString(R.string.cmd_edge_panel)) {
+                SamsungAssistCommands.enableSamsungEdge()
+            }
+        }
+
         binding.btnSmall.setOnClickListener { applyDpi(260) }
         binding.btnNormal.setOnClickListener { applyDpi(340) }
         binding.btnLarge.setOnClickListener { applyDpi(400) }
@@ -277,6 +318,13 @@ class MainActivity : AppCompatActivity() {
         }
         binding.txtScreenMode.text = getString(R.string.screen_mode_status, label)
         binding.switchKeepDual.isChecked = Prefs.keepDual(this)
+    }
+
+    private fun restartCoverOverlayIfNeeded() {
+        val mode = Prefs.screenMode(this)
+        if (mode == ScreenModes.Mode.DUAL.id || mode == ScreenModes.Mode.COVER.id) {
+            CoverNavOverlayService.start(this, mode)
+        }
     }
 
     override fun onDestroy() {
@@ -542,6 +590,7 @@ class MainActivity : AppCompatActivity() {
             binding.btnUninstallRun, binding.btnUninstallKeepData,
             binding.btnModeMain, binding.btnModeCover, binding.btnModeDual, binding.btnDoctor,
             binding.btnLauncher, binding.btnSettings, binding.btnRestoreNav,
+            binding.btnApplyEdgePreset, binding.btnEnableEdgePanel,
             binding.btnSmall, binding.btnNormal, binding.btnLarge, binding.btnXlarge,
             binding.btnResetDpi, binding.seekDpi
         ).forEach { it.isEnabled = ok }
