@@ -77,4 +77,5 @@ object SamsungAssistCommands {
 
     fun openOnCover(pkg: String): Shell.Result =
         ScreenModes.launchOnCover(pkg)
+
 }

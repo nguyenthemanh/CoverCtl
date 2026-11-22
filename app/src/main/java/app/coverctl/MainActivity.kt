@@ -1,6 +1,5 @@
 package app.coverctl
 
-import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -14,8 +13,6 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import app.coverctl.databinding.ActivityMainBinding
 import rikka.shizuku.Shizuku
@@ -24,17 +21,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var currentDpi = 340
     private var lastExportUri: Uri? = null
-    private var lastSpoofNote: String = ""
-    private val profiles = DeviceProfile.uiEntries()
     private val privilegeModes = PrivilegeMode.uiEntries()
 
     private val shizukuPermissionListener =
         Shizuku.OnRequestPermissionResultListener { _, grantResult ->
             updatePrivilegeUi()
-            if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                refreshStatus()
-                refreshDeviceInfo()
-            }
+            if (grantResult == PackageManager.PERMISSION_GRANTED) refreshStatus()
         }
 
     private val binderReceived =
@@ -54,35 +46,23 @@ class MainActivity : AppCompatActivity() {
         Shizuku.addBinderDeadListener(binderDead)
 
         Shell.mode = Prefs.privilegeMode(this)
+        // Tắt chế độ màn / giữ dual — gây chập chờn
+        Prefs.setKeepDual(this, false)
+        Prefs.setScreenMode(this, ScreenModes.Mode.MAIN.id)
+        DualKeepService.stop(this)
+        CoverNavOverlayService.stop(this)
+        if (Shell.available()) {
+            Thread {
+                Shell.exec("cmd device_state state reset >/dev/null 2>&1 || true")
+            }.start()
+        }
+
         setupSpinners()
         refreshAaCount()
         refreshUninstallCount()
-        refreshDeviceInfo()
-        refreshScreenModeUi()
 
         binding.btnAppSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
-        }
-        binding.btnModeMain.setOnClickListener { applyScreenMode(ScreenModes.Mode.MAIN) }
-        binding.btnModeCover.setOnClickListener { applyScreenMode(ScreenModes.Mode.COVER) }
-        binding.btnModeDual.setOnClickListener { applyScreenMode(ScreenModes.Mode.DUAL) }
-        binding.switchKeepDual.isChecked = Prefs.keepDual(this)
-        binding.switchKeepDual.setOnCheckedChangeListener { _, checked ->
-            Prefs.setKeepDual(this, checked)
-            if (!checked) DualKeepService.stop(this)
-        }
-        binding.btnOverlayPerm.setOnClickListener {
-            if (Shell.available()) {
-                runCmd(getString(R.string.btn_overlay_perm)) {
-                    ScreenModes.grantOverlay(this@MainActivity)
-                }
-            }
-            ScreenModes.openOverlaySettings(this)
-        }
-        binding.btnDoctor.setOnClickListener {
-            runCmd(getString(R.string.btn_doctor)) {
-                Shell.Result(0, ScreenModes.doctor(this@MainActivity), "")
-            }
         }
         binding.btnAutoSetup.setOnClickListener {
             toast(PrivilegeManager.autoSetup(this))
@@ -98,30 +78,6 @@ class MainActivity : AppCompatActivity() {
             updatePrivilegeUi()
         }
         fillAdbFields()
-
-        binding.btnCoverFull.setOnClickListener {
-            val p = currentProfile()
-            Prefs.setProfileId(this, p.id)
-            runCmd(getString(R.string.cmd_cover_full)) {
-                CoverCommands.fixCoverFullUi(p)
-            }
-        }
-        binding.btnApplyDisplay.setOnClickListener {
-            val p = currentProfile()
-            Prefs.setProfileId(this, p.id)
-            runCmd(getString(R.string.cmd_apply_display)) {
-                CoverCommands.applyDisplayProfile(p)
-            }
-        }
-        binding.btnApplySpoof.setOnClickListener {
-            val p = currentProfile()
-            Prefs.setProfileId(this, p.id)
-            runCmd(getString(R.string.cmd_apply_spoof), showSpoofDialog = true) {
-                CoverCommands.applyIdentitySpoof(p)
-            }
-        }
-        binding.btnRefreshDevice.setOnClickListener { refreshDeviceInfo() }
-        binding.btnShareDevice.setOnClickListener { shareDeviceInfo() }
 
         binding.btnDexOn.setOnClickListener {
             runCmd(getString(R.string.cmd_dex_on)) { DexCommands.enableDex() }
@@ -181,32 +137,6 @@ class MainActivity : AppCompatActivity() {
         binding.btnUninstallRun.setOnClickListener { confirmUninstall(keepData = false) }
         binding.btnUninstallKeepData.setOnClickListener { confirmUninstall(keepData = true) }
 
-        binding.btnLauncher.setOnClickListener {
-            runCmd(getString(R.string.cmd_launcher)) {
-                CoverCommands.openLauncherOnCover(currentProfile())
-            }
-        }
-        binding.btnSettings.setOnClickListener {
-            runCmd(getString(R.string.cmd_settings)) {
-                CoverCommands.openSettingsOnCover(currentProfile())
-            }
-        }
-        binding.btnRestoreNav.setOnClickListener {
-            runCmd(getString(R.string.cmd_restore_nav)) {
-                ScreenModes.grantOverlay(this@MainActivity)
-                val r = CoverCommands.restoreCoverNavigation(currentProfile())
-                CoverNavOverlayService.start(
-                    this@MainActivity,
-                    Prefs.screenMode(this@MainActivity).ifBlank { ScreenModes.Mode.DUAL.id }
-                )
-                r
-            }
-            if (!android.provider.Settings.canDrawOverlays(this)) {
-                toast(getString(R.string.toast_need_overlay))
-                ScreenModes.openOverlaySettings(this)
-            }
-        }
-
         binding.switchEdgeGestures.isChecked = Prefs.edgeGestures(this)
         binding.switchEdgeBoth.isChecked = Prefs.edgeBothSides(this)
         binding.switchShowNavBar.isChecked = Prefs.showNavBar(this)
@@ -222,15 +152,27 @@ class MainActivity : AppCompatActivity() {
             Prefs.setShowNavBar(this, checked)
             restartCoverOverlayIfNeeded()
         }
+        binding.btnOverlayPerm.setOnClickListener {
+            if (Shell.available()) {
+                runCmd(getString(R.string.btn_overlay_perm)) {
+                    ScreenModes.grantOverlay(this@MainActivity)
+                }
+            }
+            ScreenModes.openOverlaySettings(this)
+        }
         binding.btnApplyEdgePreset.setOnClickListener {
             Prefs.setEdgeGestures(this, true)
             Prefs.setEdgeBothSides(this, true)
             Prefs.setShowNavBar(this, true)
-            Prefs.setKeepDual(this, true)
+            Prefs.setKeepDual(this, false)
             binding.switchEdgeGestures.isChecked = true
             binding.switchEdgeBoth.isChecked = true
             binding.switchShowNavBar.isChecked = true
-            applyScreenMode(ScreenModes.Mode.DUAL)
+            if (!android.provider.Settings.canDrawOverlays(this)) {
+                toast(getString(R.string.toast_need_overlay))
+                ScreenModes.openOverlaySettings(this)
+            }
+            restartCoverOverlayIfNeeded()
             toast(getString(R.string.toast_edge_on))
         }
         binding.btnOpenOho.setOnClickListener {
@@ -248,13 +190,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnRefreshWidget.setOnClickListener {
-            MobileWifiWidgetProvider.refreshAll(this)
-            refreshWidgetPreview()
-            toast(getString(R.string.toast_widget_refreshed))
+        binding.btnOpenGalaxyWifi.setOnClickListener {
+            val launch = packageManager.getLaunchIntentForPackage("app.galaxywifi")
+            if (launch != null) {
+                startActivity(launch)
+            } else {
+                toast(getString(R.string.toast_install_galaxy_wifi))
+            }
         }
-        binding.btnWidgetPerms.setOnClickListener { requestWidgetPermissions() }
-        refreshWidgetPreview()
 
         binding.btnSmall.setOnClickListener { applyDpi(260) }
         binding.btnNormal.setOnClickListener { applyDpi(340) }
@@ -298,88 +241,14 @@ class MainActivity : AppCompatActivity() {
         updatePrivilegeUi()
         refreshAaCount()
         refreshUninstallCount()
-        refreshDeviceInfo()
-        refreshScreenModeUi()
-        refreshWidgetPreview()
-        MobileWifiWidgetProvider.refreshAll(this)
-    }
-
-    private fun refreshWidgetPreview() {
-        val s = DeviceNetStatus.read(this)
-        binding.txtWidgetPreview.text = buildString {
-            appendLine("${s.networkLabel}  ${s.signalBars}")
-            appendLine(s.linkText)
-            appendLine("${getString(R.string.widget_battery)} ${s.batteryText}")
-            append("${getString(R.string.widget_data)} ${s.dataText}")
-        }
-    }
-
-    private fun requestWidgetPermissions() {
-        val need = mutableListOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.READ_PHONE_STATE
-        )
-        if (Build.VERSION.SDK_INT >= 33) {
-            need.add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-        val missing = need.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-        if (missing.isEmpty()) {
-            refreshWidgetPreview()
-            MobileWifiWidgetProvider.refreshAll(this)
-            toast(getString(R.string.toast_widget_refreshed))
-        } else {
-            ActivityCompat.requestPermissions(this, missing.toTypedArray(), 2201)
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 2201) {
-            refreshWidgetPreview()
-            MobileWifiWidgetProvider.refreshAll(this)
-        }
-    }
-
-    private fun applyScreenMode(mode: ScreenModes.Mode) {
-        val label = when (mode) {
-            ScreenModes.Mode.MAIN -> getString(R.string.cmd_mode_main)
-            ScreenModes.Mode.COVER -> getString(R.string.cmd_mode_cover)
-            ScreenModes.Mode.DUAL -> getString(R.string.cmd_mode_dual)
-        }
-        if ((mode == ScreenModes.Mode.COVER || mode == ScreenModes.Mode.DUAL) &&
-            !android.provider.Settings.canDrawOverlays(this)
-        ) {
-            toast(getString(R.string.toast_need_overlay))
-            ScreenModes.openOverlaySettings(this)
-        }
-        runCmd(label) {
-            ScreenModes.apply(this@MainActivity, mode, keepDual = Prefs.keepDual(this@MainActivity), profile = currentProfile())
-        }
-        binding.root.postDelayed({ refreshScreenModeUi() }, 1200)
-    }
-
-    private fun refreshScreenModeUi() {
-        val mode = ScreenModes.Mode.fromId(Prefs.screenMode(this))
-        val label = when (mode) {
-            ScreenModes.Mode.MAIN -> getString(R.string.mode_main)
-            ScreenModes.Mode.COVER -> getString(R.string.mode_cover)
-            ScreenModes.Mode.DUAL -> getString(R.string.mode_dual)
-        }
-        binding.txtScreenMode.text = getString(R.string.screen_mode_status, label)
-        binding.switchKeepDual.isChecked = Prefs.keepDual(this)
     }
 
     private fun restartCoverOverlayIfNeeded() {
-        val mode = Prefs.screenMode(this)
-        if (mode == ScreenModes.Mode.DUAL.id || mode == ScreenModes.Mode.COVER.id) {
-            CoverNavOverlayService.start(this, mode)
+        CoverNavOverlayService.stop(this)
+        if (Prefs.edgeGestures(this) || Prefs.showNavBar(this)) {
+            if (android.provider.Settings.canDrawOverlays(this)) {
+                CoverNavOverlayService.start(this, "nav")
+            }
         }
     }
 
@@ -403,23 +272,7 @@ class MainActivity : AppCompatActivity() {
             Prefs.setPrivilegeMode(this, privilegeModes[it])
             Shell.mode = privilegeModes[it]
             updatePrivilegeUi()
-            if (Shell.available()) {
-                refreshStatus()
-                refreshDeviceInfo()
-            }
-        }
-
-        binding.spinnerProfile.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            profiles.map { it.label(this) }
-        )
-        binding.spinnerProfile.setSelection(
-            profiles.indexOfFirst { it.id == Prefs.profileId(this) }.coerceAtLeast(0)
-        )
-        binding.spinnerProfile.onItemSelectedListener = simpleSelect {
-            Prefs.setProfileId(this, profiles[it].id)
-            refreshDeviceInfo()
+            if (Shell.available()) refreshStatus()
         }
     }
 
@@ -435,8 +288,7 @@ class MainActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-    private fun currentProfile(): DeviceProfile =
-        profiles.getOrElse(binding.spinnerProfile.selectedItemPosition) { DeviceProfile.AUTO }
+    private fun currentProfile(): DeviceProfile = DeviceProfile.AUTO
 
     private fun refreshAaCount() {
         binding.txtAaSelected.text =
@@ -622,10 +474,7 @@ class MainActivity : AppCompatActivity() {
                 LogStore.append("adb-connect", msg)
                 toast(msg.take(80))
                 updatePrivilegeUi()
-                if (AdbShell.available()) {
-                    refreshStatus()
-                    refreshDeviceInfo()
-                }
+                if (AdbShell.available()) refreshStatus()
             }
         }.start()
     }
@@ -645,7 +494,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             updatePrivilegeUi()
             refreshStatus()
-            refreshDeviceInfo()
         }
     }
 
@@ -668,20 +516,15 @@ class MainActivity : AppCompatActivity() {
         }
         val ok = st.ready
         listOf(
-            binding.btnCoverFull, binding.btnApplyDisplay, binding.btnApplySpoof,
             binding.btnDexOn, binding.btnDexStart, binding.btnDexSettings,
             binding.btnDexOff, binding.btnDexStatus,
             binding.btnAaUnlock, binding.btnAaSettings, binding.btnAaStatus,
             binding.btnUninstallPick, binding.btnUninstallPickSystem,
             binding.btnUninstallRun, binding.btnUninstallKeepData,
-            binding.btnModeMain, binding.btnModeCover, binding.btnModeDual, binding.btnDoctor,
-            binding.btnLauncher, binding.btnSettings, binding.btnRestoreNav,
-            binding.btnApplyEdgePreset, binding.btnEnableEdgePanel,
+            binding.btnOverlayPerm, binding.btnApplyEdgePreset, binding.btnEnableEdgePanel,
             binding.btnSmall, binding.btnNormal, binding.btnLarge, binding.btnXlarge,
             binding.btnResetDpi, binding.seekDpi
         ).forEach { it.isEnabled = ok }
-        binding.btnRefreshDevice.isEnabled = true
-        binding.btnShareDevice.isEnabled = true
         binding.btnAaChecklist.isEnabled = true
         binding.btnAaUnknownAuto.isEnabled = true
         binding.btnAaAnyAuto.isEnabled = true
@@ -702,40 +545,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun runCmd(
-        label: String,
-        showSpoofDialog: Boolean = false,
-        block: () -> Shell.Result
-    ) {
+    private fun runCmd(label: String, block: () -> Shell.Result) {
         Thread {
             val result = block()
             val text = result.text()
             LogStore.append(label, text)
             runOnUiThread {
                 binding.txtLog.text = "$label\n$text"
-                if (showSpoofDialog) {
-                    when {
-                        text.contains("SPOOF_FAIL") -> {
-                            lastSpoofNote = "Lần spoof: FAIL — máy chưa Magisk/resetprop"
-                            AlertDialog.Builder(this)
-                                .setTitle(R.string.spoof_fail_title)
-                                .setMessage(text)
-                                .setPositiveButton(android.R.string.ok, null)
-                                .setNeutralButton(R.string.btn_share_log) { _, _ ->
-                                    exportLog(share = true)
-                                }
-                                .show()
-                        }
-                        text.contains("SPOOF_OK") -> {
-                            lastSpoofNote = "Lần spoof: OK"
-                            toast(getString(R.string.spoof_ok_toast))
-                        }
-                        text.contains("SPOOF_SKIP") -> {
-                            lastSpoofNote = "Lần spoof: bỏ qua (hồ sơ Tự nhận diện)"
-                            toast("Chọn Flip/Fold rồi thử lại")
-                        }
-                    }
-                } else if (!result.ok) {
+                if (!result.ok) {
                     toast(
                         getString(
                             R.string.cmd_error,
@@ -745,60 +562,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
                 refreshStatus()
-                refreshDeviceInfo()
             }
-        }.start()
-    }
-
-    private fun refreshDeviceInfo() {
-        val profile = currentProfile()
-        val apiBlock = buildString {
-            appendLine("=== Máy thật (Android API, luôn đúng) ===")
-            appendLine("MODEL=${Build.MODEL}")
-            appendLine("DEVICE=${Build.DEVICE}")
-            appendLine("PRODUCT=${Build.PRODUCT}")
-            appendLine("MANUFACTURER=${Build.MANUFACTURER}")
-            appendLine("ANDROID=${Build.VERSION.RELEASE} SDK=${Build.VERSION.SDK_INT}")
-            appendLine("FINGERPRINT=${Build.FINGERPRINT}")
-        }
-        if (!Shell.available()) {
-            val resolved = if (profile == DeviceProfile.AUTO) {
-                DeviceProfile.detectFromModel(Build.MODEL)
-            } else profile
-            binding.txtDeviceInfo.text = buildString {
-                appendLine(apiBlock.trim())
-                appendLine()
-                appendLine("Hồ sơ chọn: ${profile.label(this@MainActivity)}")
-                appendLine(
-                    resolved.spoofModel?.let { "Target spoof: $it / ${resolved.spoofDevice}" }
-                        ?: "Target: (không spoof)"
-                )
-                appendLine("spoof_capable=NO — cần Magisk; shell: ${Prefs.privilegeMode(this@MainActivity).label(this@MainActivity)}")
-                appendLine("${shellNotReadyMessage()} — chưa đọc được getprop")
-                if (lastSpoofNote.isNotBlank()) appendLine(lastSpoofNote)
-            }.trim()
-            return
-        }
-        val modeLabel = Prefs.privilegeMode(this).label(this)
-        Thread {
-            val id = CoverCommands.readIdentityBlock()
-            val resolved = CoverCommands.resolveProfile(profile)
-            val block = buildString {
-                appendLine(apiBlock.trim())
-                appendLine()
-                appendLine("=== Props qua $modeLabel (getprop) ===")
-                appendLine(id.text())
-                appendLine()
-                appendLine("Hồ sơ chọn: ${profile.label(this@MainActivity)}")
-                appendLine(
-                    resolved.spoofModel?.let { "Target spoof: $it / ${resolved.spoofDevice}" }
-                        ?: "Target: (không spoof)"
-                )
-                if (lastSpoofNote.isNotBlank()) appendLine(lastSpoofNote)
-                appendLine()
-                appendLine("Lưu ý: không root thì MODEL trong props KHÔNG đổi — đó là đúng, không phải lỗi UI.")
-            }
-            runOnUiThread { binding.txtDeviceInfo.text = block.trim() }
         }.start()
     }
 
@@ -814,18 +578,11 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun shareDeviceInfo() {
-        val text = binding.txtDeviceInfo.text?.toString().orEmpty()
-        LogStore.append("device-info", text)
-        exportLog(share = true)
-    }
-
     private fun exportLog(share: Boolean) {
-        val device = binding.txtDeviceInfo.text?.toString().orEmpty()
         val status = binding.txtStatus.text?.toString().orEmpty()
         Thread {
             val extra = buildString {
-                appendLine(device)
+                appendLine("MODEL=${Build.MODEL}")
                 appendLine(status)
             }
             val result = LogStore.export(this, extra)

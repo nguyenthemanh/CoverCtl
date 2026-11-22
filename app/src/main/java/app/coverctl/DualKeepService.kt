@@ -107,7 +107,8 @@ class DualKeepService : Service() {
 
             Shell.exec("cmd device_state state $stateId >/dev/null 2>&1")
             val now = ScreenModes.currentStateId()
-            if (now == stateId) {
+            // Chỉ khởi động overlay nếu chưa chạy — tránh recreate window chặn touch
+            if (now == stateId && !CoverNavOverlayService.running) {
                 CoverNavOverlayService.start(this, ScreenModes.Mode.DUAL.id)
             }
         }.start()

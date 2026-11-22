@@ -18,9 +18,94 @@ object Prefs {
     private const val KEY_EDGE_GESTURES = "edge_gestures"
     private const val KEY_EDGE_BOTH_SIDES = "edge_both_sides"
     private const val KEY_SHOW_NAV_BAR = "show_nav_bar"
+    private const val KEY_WIDGET_DARK = "widget_dark"
+    private const val KEY_WIDGET_AUTO_DARK = "widget_auto_dark"
+    private const val KEY_WIDGET_CALENDAR = "widget_calendar"
+    private const val KEY_WIDGET_CAL_CHARGING = "widget_cal_charging"
+    private const val KEY_WIDGET_SIGNAL = "widget_signal"
+    private const val KEY_WIDGET_BATTERY = "widget_battery"
+    private const val KEY_WIDGET_DATA = "widget_data"
+    private const val KEY_WIDGET_METERS = "widget_meters"
+    private const val KEY_FAV_APPS = "favorite_apps"
 
     private fun sp(context: Context) =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
+
+    /** Tối đa 4 app ghim trên widget (kiểu Tất Cả APP). */
+    fun favoriteApps(context: Context): List<String> {
+        val raw = sp(context).getString(KEY_FAV_APPS, "").orEmpty()
+        return raw.split(',').map { it.trim() }.filter { it.isNotEmpty() }.distinct().take(4)
+    }
+
+    fun setFavoriteApps(context: Context, packages: List<String>) {
+        sp(context).edit()
+            .putString(KEY_FAV_APPS, packages.distinct().take(4).joinToString(","))
+            .apply()
+    }
+
+    fun addFavoriteApp(context: Context, packageName: String) {
+        val cur = favoriteApps(context).toMutableList()
+        cur.remove(packageName)
+        cur.add(0, packageName)
+        setFavoriteApps(context, cur)
+    }
+
+    fun widgetDark(context: Context): Boolean =
+        sp(context).getBoolean(KEY_WIDGET_DARK, false)
+
+    fun setWidgetDark(context: Context, dark: Boolean) {
+        sp(context).edit().putBoolean(KEY_WIDGET_DARK, dark).apply()
+    }
+
+    /** Tự dark mode buổi tối (19:00–06:00), giống timer Galaxy Wi‑Fi. */
+    fun widgetAutoDark(context: Context): Boolean =
+        sp(context).getBoolean(KEY_WIDGET_AUTO_DARK, false)
+
+    fun setWidgetAutoDark(context: Context, auto: Boolean) {
+        sp(context).edit().putBoolean(KEY_WIDGET_AUTO_DARK, auto).apply()
+    }
+
+    fun widgetCalendar(context: Context): Boolean =
+        sp(context).getBoolean(KEY_WIDGET_CALENDAR, true)
+
+    fun setWidgetCalendar(context: Context, show: Boolean) {
+        sp(context).edit().putBoolean(KEY_WIDGET_CALENDAR, show).apply()
+    }
+
+    fun widgetCalendarWhenCharging(context: Context): Boolean =
+        sp(context).getBoolean(KEY_WIDGET_CAL_CHARGING, false)
+
+    fun setWidgetCalendarWhenCharging(context: Context, onlyCharging: Boolean) {
+        sp(context).edit().putBoolean(KEY_WIDGET_CAL_CHARGING, onlyCharging).apply()
+    }
+
+    fun widgetShowSignal(context: Context): Boolean =
+        sp(context).getBoolean(KEY_WIDGET_SIGNAL, true)
+
+    fun setWidgetShowSignal(context: Context, show: Boolean) {
+        sp(context).edit().putBoolean(KEY_WIDGET_SIGNAL, show).apply()
+    }
+
+    fun widgetShowBattery(context: Context): Boolean =
+        sp(context).getBoolean(KEY_WIDGET_BATTERY, true)
+
+    fun setWidgetShowBattery(context: Context, show: Boolean) {
+        sp(context).edit().putBoolean(KEY_WIDGET_BATTERY, show).apply()
+    }
+
+    fun widgetShowData(context: Context): Boolean =
+        sp(context).getBoolean(KEY_WIDGET_DATA, true)
+
+    fun setWidgetShowData(context: Context, show: Boolean) {
+        sp(context).edit().putBoolean(KEY_WIDGET_DATA, show).apply()
+    }
+
+    fun widgetShowMeters(context: Context): Boolean =
+        sp(context).getBoolean(KEY_WIDGET_METERS, true)
+
+    fun setWidgetShowMeters(context: Context, show: Boolean) {
+        sp(context).edit().putBoolean(KEY_WIDGET_METERS, show).apply()
+    }
 
     fun edgeGestures(context: Context): Boolean =
         sp(context).getBoolean(KEY_EDGE_GESTURES, true)

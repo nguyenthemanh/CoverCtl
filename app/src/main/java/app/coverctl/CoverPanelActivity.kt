@@ -1,5 +1,6 @@
 package app.coverctl
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -10,10 +11,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.materialswitch.MaterialSwitch
-import kotlin.concurrent.thread
 
-/** Panel chế độ màn trên cover (display 1). */
+/** Panel nhanh trên cover. */
 class CoverPanelActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,49 +34,30 @@ class CoverPanelActivity : AppCompatActivity() {
             setBackgroundColor(0xFFF2F2F7.toInt())
         }
         col.addView(TextView(this).apply {
-            text = getString(R.string.section_screen_mode)
+            text = getString(R.string.app_name)
             setTextColor(Color.BLACK)
             textSize = 22f
             setPadding(0, 0, 0, dp(12))
         })
-        col.addView(modeBtn(R.string.mode_main) { applyMode(ScreenModes.Mode.MAIN) })
-        col.addView(modeBtn(R.string.mode_cover) { applyMode(ScreenModes.Mode.COVER) })
-        col.addView(modeBtn(R.string.mode_dual) { applyMode(ScreenModes.Mode.DUAL) })
-
-        val keep = MaterialSwitch(this).apply {
-            text = getString(R.string.btn_keep_dual)
-            isChecked = Prefs.keepDual(this@CoverPanelActivity)
-            setOnCheckedChangeListener { _, checked ->
-                Prefs.setKeepDual(this@CoverPanelActivity, checked)
-                if (checked && Prefs.screenMode(this@CoverPanelActivity) == ScreenModes.Mode.DUAL.id) {
-                    applyMode(ScreenModes.Mode.DUAL)
-                } else if (!checked) {
-                    DualKeepService.stop(this@CoverPanelActivity)
-                }
-            }
-        }
-        col.addView(keep)
-        col.addView(modeBtn(R.string.btn_restore_nav) {
-            thread {
-                Shell.mode = Prefs.privilegeMode(this@CoverPanelActivity)
-                ScreenModes.grantOverlay(this@CoverPanelActivity)
-                CoverNavOverlayService.start(this@CoverPanelActivity, Prefs.screenMode(this@CoverPanelActivity))
-                CoverCommands.restoreCoverNavigation(DeviceProfile.fromId(Prefs.profileId(this@CoverPanelActivity)))
-                runOnUiThread { toast(getString(R.string.toast_nav_overlay_on)) }
+        col.addView(btn(R.string.btn_open_galaxy_wifi) {
+            val launch = packageManager.getLaunchIntentForPackage("app.galaxywifi")
+            if (launch != null) {
+                startActivity(launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            } else {
+                toast(getString(R.string.toast_install_galaxy_wifi))
             }
         })
-        col.addView(modeBtn(R.string.btn_doctor) {
-            thread {
-                Shell.mode = Prefs.privilegeMode(this@CoverPanelActivity)
-                val msg = ScreenModes.doctor(this@CoverPanelActivity)
-                runOnUiThread { toast(msg) }
-            }
+        col.addView(btn(R.string.btn_overlay_perm) {
+            ScreenModes.openOverlaySettings(this)
+        })
+        col.addView(btn(R.string.btn_app_settings) {
+            startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         })
         root.addView(col)
         setContentView(root)
     }
 
-    private fun modeBtn(labelRes: Int, onClick: () -> Unit): MaterialButton =
+    private fun btn(labelRes: Int, onClick: () -> Unit): MaterialButton =
         MaterialButton(this).apply {
             text = getString(labelRes)
             layoutParams = LinearLayout.LayoutParams(
@@ -86,17 +66,6 @@ class CoverPanelActivity : AppCompatActivity() {
             ).apply { bottomMargin = dp(8) }
             setOnClickListener { onClick() }
         }
-
-    private fun applyMode(mode: ScreenModes.Mode) {
-        thread {
-            Shell.mode = Prefs.privilegeMode(this)
-            val r = ScreenModes.apply(this, mode, keepDual = Prefs.keepDual(this))
-            runOnUiThread {
-                toast(r.text().lines().lastOrNull { it.isNotBlank() } ?: mode.id)
-                if (mode == ScreenModes.Mode.MAIN) finish()
-            }
-        }
-    }
 
     private fun toast(msg: String) =
         Toast.makeText(this, msg.take(200), Toast.LENGTH_SHORT).show()

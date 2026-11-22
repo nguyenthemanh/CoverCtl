@@ -11,8 +11,8 @@ android {
         applicationId = "app.coverctl"
         minSdk = 28
         targetSdk = 35
-        versionCode = 19
-        versionName = "1.9.0"
+        versionCode = 26
+        versionName = "2.0.0"
         buildConfigField("String", "GITHUB_REPO", "\"nguyenthemanh/CoverCtl\"")
     }
 

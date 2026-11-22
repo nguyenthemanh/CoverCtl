@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.GalaxyWifi" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">#0B57D0</item>
+        <item name="colorSecondary">#0284C7</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">#F7F8FA</item>
+    </style>
+</resources>

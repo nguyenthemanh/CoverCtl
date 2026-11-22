@@ -49,95 +49,6 @@
                 android:text="@string/app_subtitle"
                 android:textAppearance="@style/TextAppearance.CoverCtl.Body" />
 
-            <!-- Screen modes (flip-ctl parity) -->
-            <TextView
-                style="@style/TextAppearance.CoverCtl.Section"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/section_screen_mode" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_glass_card"
-                android:elevation="2dp"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/hint_screen_mode"
-                    android:textAppearance="@style/TextAppearance.CoverCtl.Body"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/txtScreenMode"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@color/ios_label"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnModeMain"
-                        style="@style/Widget.CoverCtl.Button.Outline"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/mode_main_short" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnModeCover"
-                        style="@style/Widget.CoverCtl.Button.Outline"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:layout_weight="1"
-                        android:text="@string/mode_cover_short" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnModeDual"
-                        style="@style/Widget.CoverCtl.Button"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:layout_weight="1"
-                        android:text="@string/mode_dual_short" />
-                </LinearLayout>
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switchKeepDual"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/btn_keep_dual" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnOverlayPerm"
-                    style="@style/Widget.CoverCtl.Button.Text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/btn_overlay_perm" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDoctor"
-                    style="@style/Widget.CoverCtl.Button.Outline"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/btn_doctor" />
-            </LinearLayout>
-
             <TextView
                 android:id="@+id/txtShizuku"
                 android:layout_width="wrap_content"
@@ -367,97 +278,6 @@
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
                         android:text="@string/btn_clear_log" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Identity -->
-            <TextView
-                style="@style/TextAppearance.CoverCtl.Section"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/section_identity" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_glass_card"
-                android:elevation="2dp"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/hint_identity"
-                    android:textAppearance="@style/TextAppearance.CoverCtl.Body"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/txtDeviceInfo"
-                    style="@style/TextAppearance.CoverCtl.Mono"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_mono_panel"
-                    android:padding="12dp"
-                    android:text="@string/device_info_loading" />
-
-                <Spinner
-                    android:id="@+id/spinnerProfile"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_mono_panel"
-                    android:paddingHorizontal="8dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCoverFull"
-                    style="@style/Widget.CoverCtl.Button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="@string/btn_cover_full" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnApplyDisplay"
-                    style="@style/Widget.CoverCtl.Button.Tonal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/btn_apply_display" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnApplySpoof"
-                    style="@style/Widget.CoverCtl.Button.Tonal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/btn_apply_spoof" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRefreshDevice"
-                        style="@style/Widget.CoverCtl.Button.Outline"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/btn_refresh_device" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnShareDevice"
-                        style="@style/Widget.CoverCtl.Button.Outline"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:text="@string/btn_share_device" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -717,62 +537,6 @@
             </LinearLayout>
 
             <!-- Cover apps -->
-            <TextView
-                style="@style/TextAppearance.CoverCtl.Section"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/section_open_on_cover" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_glass_card"
-                android:elevation="2dp"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/hint_cover_nav"
-                    android:textAppearance="@style/TextAppearance.CoverCtl.Body"
-                    android:textSize="13sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnLauncher"
-                        style="@style/Widget.CoverCtl.Button"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/btn_launcher" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSettings"
-                        style="@style/Widget.CoverCtl.Button.Tonal"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:text="@string/btn_settings" />
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRestoreNav"
-                    style="@style/Widget.CoverCtl.Button.Outline"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/btn_restore_nav" />
-            </LinearLayout>
-
             <!-- One Hand / Edge (OHO+ style for cover) -->
             <TextView
                 style="@style/TextAppearance.CoverCtl.Section"
@@ -817,6 +581,14 @@
                     android:text="@string/btn_show_nav_bar" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOverlayPerm"
+                    style="@style/Widget.CoverCtl.Button.Outline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/btn_overlay_perm" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnApplyEdgePreset"
                     style="@style/Widget.CoverCtl.Button"
                     android:layout_width="match_parent"
@@ -857,14 +629,14 @@
                     android:text="@string/btn_enable_edge_panel" />
             </LinearLayout>
 
-            <!-- Galaxy Wi-Fi 5G widget -->
+            <!-- Galaxy Wi-Fi 5G = app riêng -->
             <TextView
                 style="@style/TextAppearance.CoverCtl.Section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="8dp"
-                android:text="@string/section_widget" />
+                android:text="@string/section_galaxy_wifi" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -877,36 +649,17 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/hint_widget"
+                    android:text="@string/hint_galaxy_wifi_separate"
                     android:textAppearance="@style/TextAppearance.CoverCtl.Body"
                     android:textSize="13sp" />
 
-                <TextView
-                    android:id="@+id/txtWidgetPreview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_mono_panel"
-                    android:fontFamily="monospace"
-                    android:padding="12dp"
-                    android:textColor="@color/ios_label"
-                    android:textSize="12sp" />
-
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRefreshWidget"
+                    android:id="@+id/btnOpenGalaxyWifi"
                     style="@style/Widget.CoverCtl.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="@string/btn_refresh_widget" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnWidgetPerms"
-                    style="@style/Widget.CoverCtl.Button.Outline"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/btn_widget_perms" />
+                    android:text="@string/btn_open_galaxy_wifi" />
             </LinearLayout>
 
             <!-- Scale -->

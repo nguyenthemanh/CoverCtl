@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Galaxy Z Flip Flex Window (cover):
+  Samsung khuyến nghị ~352×339dp + widgetCategory=keyguard
+  → xuất hiện trong Cài đặt → Màn ngoài → Widget.
+-->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/widget_wifi_desc"
     android:initialLayout="@layout/widget_mobile_wifi"
-    android:minWidth="180dp"
-    android:minHeight="110dp"
-    android:previewImage="@drawable/ic_launcher"
+    android:minWidth="352dp"
+    android:minHeight="339dp"
+    android:previewImage="@drawable/ic_widget_preview"
     android:resizeMode="horizontal|vertical"
-    android:targetCellWidth="3"
-    android:targetCellHeight="2"
+    android:targetCellWidth="4"
+    android:targetCellHeight="4"
     android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen|keyguard" />
