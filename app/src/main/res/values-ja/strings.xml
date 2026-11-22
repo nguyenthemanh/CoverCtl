@@ -123,6 +123,17 @@
     <string name="cmd_edge_preset">One Hand カバープリセットを適用</string>
     <string name="cmd_edge_panel">Edge パネルを有効化</string>
     <string name="toast_edge_on">カバー端ジェスチャーを有効化しました</string>
+    <string name="widget_wifi_title">Galaxy Wi‑Fi 5G</string>
+    <string name="widget_wifi_desc">マルチ情報：回線・電波・バッテリー・データ — 端末と同期（Galaxy 5G Mobile Wi‑Fi 風）。</string>
+    <string name="widget_signal">電波</string>
+    <string name="widget_battery">電池</string>
+    <string name="widget_data">データ</string>
+    <string name="widget_wifi_hint">タップで CoverCtl · 更新</string>
+    <string name="section_widget">Galaxy Wi‑Fi 5G ウィジェット</string>
+    <string name="hint_widget">「Galaxy Wi‑Fi 5G」ウィジェットをホームまたはカバー（MultiStar）に追加。5G/LTE/Wi‑Fi・電波・電池・データ・テザリングを端末と同期表示。</string>
+    <string name="btn_refresh_widget">ウィジェットを更新</string>
+    <string name="btn_widget_perms">ネットワーク / 位置情報を許可（SSID）</string>
+    <string name="toast_widget_refreshed">ウィジェットを更新しました</string>
     <string name="section_cover_scale">カバー UI スケール</string>
     <string name="dpi_value">DPI: %1$d</string>
     <string name="btn_small">小</string>

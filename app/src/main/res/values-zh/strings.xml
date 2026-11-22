@@ -123,6 +123,17 @@
     <string name="cmd_edge_preset">应用 One Hand 外屏预设</string>
     <string name="cmd_edge_panel">启用 Edge 面板</string>
     <string name="toast_edge_on">已启外屏边缘手势</string>
+    <string name="widget_wifi_title">Galaxy Wi‑Fi 5G</string>
+    <string name="widget_wifi_desc">多信息：网络、信号、电量、流量 — 与手机同步（类似 Galaxy 5G Mobile Wi‑Fi）。</string>
+    <string name="widget_signal">信号</string>
+    <string name="widget_battery">电量</string>
+    <string name="widget_data">流量</string>
+    <string name="widget_wifi_hint">点按打开 CoverCtl · 刷新</string>
+    <string name="section_widget">Galaxy Wi‑Fi 5G 小组件</string>
+    <string name="hint_widget">将「Galaxy Wi‑Fi 5G」小组件加到主屏或外屏（MultiStar）。显示 5G/LTE/Wi‑Fi、信号、电量、流量、热点 — 与手机实时同步。</string>
+    <string name="btn_refresh_widget">刷新小组件</string>
+    <string name="btn_widget_perms">授予网络 / 位置权限（SSID）</string>
+    <string name="toast_widget_refreshed">已刷新小组件</string>
     <string name="section_cover_scale">外屏界面缩放</string>
     <string name="dpi_value">DPI：%1$d</string>
     <string name="btn_small">小</string>

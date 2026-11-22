@@ -1,5 +1,6 @@
 package app.coverctl
 
+import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -13,6 +14,8 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import app.coverctl.databinding.ActivityMainBinding
 import rikka.shizuku.Shizuku
@@ -245,6 +248,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        binding.btnRefreshWidget.setOnClickListener {
+            MobileWifiWidgetProvider.refreshAll(this)
+            refreshWidgetPreview()
+            toast(getString(R.string.toast_widget_refreshed))
+        }
+        binding.btnWidgetPerms.setOnClickListener { requestWidgetPermissions() }
+        refreshWidgetPreview()
+
         binding.btnSmall.setOnClickListener { applyDpi(260) }
         binding.btnNormal.setOnClickListener { applyDpi(340) }
         binding.btnLarge.setOnClickListener { applyDpi(400) }
@@ -289,6 +300,51 @@ class MainActivity : AppCompatActivity() {
         refreshUninstallCount()
         refreshDeviceInfo()
         refreshScreenModeUi()
+        refreshWidgetPreview()
+        MobileWifiWidgetProvider.refreshAll(this)
+    }
+
+    private fun refreshWidgetPreview() {
+        val s = DeviceNetStatus.read(this)
+        binding.txtWidgetPreview.text = buildString {
+            appendLine("${s.networkLabel}  ${s.signalBars}")
+            appendLine(s.linkText)
+            appendLine("${getString(R.string.widget_battery)} ${s.batteryText}")
+            append("${getString(R.string.widget_data)} ${s.dataText}")
+        }
+    }
+
+    private fun requestWidgetPermissions() {
+        val need = mutableListOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.READ_PHONE_STATE
+        )
+        if (Build.VERSION.SDK_INT >= 33) {
+            need.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        val missing = need.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+        if (missing.isEmpty()) {
+            refreshWidgetPreview()
+            MobileWifiWidgetProvider.refreshAll(this)
+            toast(getString(R.string.toast_widget_refreshed))
+        } else {
+            ActivityCompat.requestPermissions(this, missing.toTypedArray(), 2201)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 2201) {
+            refreshWidgetPreview()
+            MobileWifiWidgetProvider.refreshAll(this)
+        }
     }
 
     private fun applyScreenMode(mode: ScreenModes.Mode) {

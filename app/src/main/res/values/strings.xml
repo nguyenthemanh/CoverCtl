@@ -123,6 +123,17 @@
     <string name="cmd_edge_preset">Áp preset One Hand cover</string>
     <string name="cmd_edge_panel">Bật Edge panel</string>
     <string name="toast_edge_on">Đã bật gesture cạnh trên cover</string>
+    <string name="widget_wifi_title">Galaxy Wi‑Fi 5G</string>
+    <string name="widget_wifi_desc">Multi-info: mạng, sóng, pin, data — đồng bộ với máy (kiểu Galaxy 5G Mobile Wi‑Fi).</string>
+    <string name="widget_signal">Sóng</string>
+    <string name="widget_battery">Pin</string>
+    <string name="widget_data">Data</string>
+    <string name="widget_wifi_hint">Chạm mở CoverCtl · giữ để làm mới</string>
+    <string name="section_widget">Widget Galaxy Wi‑Fi 5G</string>
+    <string name="hint_widget">Thêm widget «Galaxy Wi‑Fi 5G» lên màn hình chính hoặc cover (MultiStar). Hiển thị 5G/LTE/Wi‑Fi, sóng, pin, data, hotspot — đồng bộ realtime với máy.</string>
+    <string name="btn_refresh_widget">Làm mới widget</string>
+    <string name="btn_widget_perms">Cấp quyền mạng / vị trí (SSID)</string>
+    <string name="toast_widget_refreshed">Đã làm mới widget</string>
     <string name="section_cover_scale">Thu / phóng giao diện màn ngoài</string>
     <string name="dpi_value">DPI: %1$d</string>
     <string name="btn_small">Nhỏ</string>
