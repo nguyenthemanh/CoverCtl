@@ -2,6 +2,7 @@ package app.galaxywifi
 
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -11,9 +12,11 @@ import android.widget.ArrayAdapter
 import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.core.view.WindowCompat
 import app.galaxywifi.databinding.ActivityMainBinding
 import com.google.android.material.button.MaterialButton
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -34,6 +37,11 @@ class MainActivity : AppCompatActivity() {
         } catch (_: Exception) {
             ""
         }
+        binding.txtAuthorName.text = BuildConfig.AUTHOR_NAME
+        binding.txtAuthorName.setOnClickListener {
+            openUrl(BuildConfig.AUTHOR_URL)
+        }
+        binding.btnCheckUpdate.setOnClickListener { checkUpdate() }
 
         bindLanguage()
         bindLayoutControls()
@@ -113,6 +121,10 @@ class MainActivity : AppCompatActivity() {
                 refreshPreview()
                 refreshMobileDataButton()
             }, 1000L)
+        }
+        binding.btnMediaAccess.setOnClickListener {
+            MediaNotifListener.openSettings(this)
+            toast(getString(R.string.toast_media_access))
         }
         binding.btnGrantPerms.setOnClickListener {
             AppPermissions.request(this)
@@ -353,19 +365,101 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshPreview() {
+        val missingRuntime = AppPermissions.missing(this)
+        val media = MediaNotifListener.isEnabled(this)
+        val usage = WidgetAppIcons.hasUsageAccess(this)
+        val widgetIds = android.appwidget.AppWidgetManager.getInstance(this)
+            .getAppWidgetIds(
+                android.content.ComponentName(this, MobileWifiWidgetProvider::class.java)
+            )
+        val coverPresent = try {
+            val dm = getSystemService(android.hardware.display.DisplayManager::class.java)
+            dm.getDisplay(ScreenModes.COVER_DISPLAY) != null
+        } catch (_: Exception) {
+            false
+        }
+        val displayId = try {
+            if (Build.VERSION.SDK_INT >= 30) {
+                display?.displayId ?: 0
+            } else {
+                @Suppress("DEPRECATION")
+                windowManager.defaultDisplay.displayId
+            }
+        } catch (_: Exception) {
+            0
+        }
+        val onCover = displayId == ScreenModes.COVER_DISPLAY
+        val surface = if (onCover) {
+            getString(R.string.status_surface_cover, displayId)
+        } else {
+            getString(R.string.status_surface_main, displayId)
+        }
+
+        val issues = mutableListOf<String>()
+        if (missingRuntime.isNotEmpty()) {
+            issues += getString(
+                R.string.status_missing_runtime,
+                missingRuntime.joinToString(", ") { friendlyPerm(it) }
+            )
+        }
+        if (!media) issues += getString(R.string.status_missing_media)
+        if (!usage) issues += getString(R.string.status_missing_usage)
+        if (widgetIds.isEmpty()) issues += getString(R.string.status_missing_widget)
+        if (!coverPresent) issues += getString(R.string.status_no_cover_display)
+
+        val health = if (issues.isEmpty()) {
+            getString(R.string.status_health_ok)
+        } else {
+            getString(R.string.status_health_issues, issues.size)
+        }
+
         val s = DeviceNetStatus.read(this)
         binding.txtPreview.text = buildString {
-            appendLine("Uplink ${s.uplinkLabel}  ${s.signalBars}")
+            appendLine(health)
             appendLine(
-                "AP ${if (s.hotspotOn) "ON" else "OFF"} · " +
-                    s.apSsid.ifBlank { getString(R.string.widget_ap_unnamed) }
+                getString(R.string.status_privilege_line, getString(R.string.status_privilege_normal))
             )
-            if (s.apPassword.isNotBlank()) appendLine("${getString(R.string.widget_net_pass)}: ${s.apPassword}")
-            else appendLine(getString(R.string.widget_pass_unknown))
-            if (s.apBand.isNotBlank()) appendLine(s.apBand)
-            appendLine(getString(R.string.widget_clients_fmt, s.connectedClients, s.maxClients))
-            append("${getString(R.string.widget_data)} ${s.dataText}")
+            appendLine(getString(R.string.status_running_on, surface))
+            appendLine(
+                getString(
+                    R.string.status_cover_hw,
+                    if (coverPresent) getString(R.string.status_yes) else getString(R.string.status_no)
+                )
+            )
+            appendLine(
+                getString(
+                    R.string.status_widget_line,
+                    if (widgetIds.isNotEmpty()) {
+                        getString(R.string.status_widget_ok, widgetIds.size)
+                    } else {
+                        getString(R.string.status_no)
+                    }
+                )
+            )
+            appendLine(
+                "Hotspot ${if (s.hotspotOn) "ON" else "OFF"} · ${s.uplinkLabel} · ${s.dataText}"
+            )
+            appendLine()
+            if (issues.isEmpty()) {
+                append(getString(R.string.status_perms_all_ok))
+            } else {
+                appendLine(getString(R.string.status_need_fix))
+                issues.forEachIndexed { i, line ->
+                    append(if (i == issues.lastIndex) "• $line" else "• $line\n")
+                }
+            }
         }
+    }
+
+    private fun friendlyPerm(name: String): String = when (name) {
+        android.Manifest.permission.ACCESS_FINE_LOCATION,
+        android.Manifest.permission.ACCESS_COARSE_LOCATION -> getString(R.string.perm_location)
+        android.Manifest.permission.READ_PHONE_STATE -> getString(R.string.perm_phone)
+        android.Manifest.permission.NEARBY_WIFI_DEVICES -> getString(R.string.perm_nearby)
+        android.Manifest.permission.POST_NOTIFICATIONS -> getString(R.string.perm_notifications)
+        android.Manifest.permission.ACCESS_WIFI_STATE,
+        android.Manifest.permission.CHANGE_WIFI_STATE -> getString(R.string.perm_wifi)
+        else -> name.substringAfterLast('.')
     }
 
     private fun enableCoverDisplay() {
@@ -378,6 +472,86 @@ class MainActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
             )
+        }
+    }
+
+    private fun checkUpdate() {
+        binding.btnCheckUpdate.isEnabled = false
+        binding.txtUpdateStatus.text = getString(R.string.update_checking)
+        thread {
+            try {
+                val result = UpdateChecker.check(BuildConfig.VERSION_NAME)
+                if (!result.newer) {
+                    runOnUiThread {
+                        binding.btnCheckUpdate.isEnabled = true
+                        binding.txtUpdateStatus.text =
+                            getString(R.string.update_latest, result.tagName)
+                        toast(getString(R.string.update_latest, result.tagName))
+                    }
+                    return@thread
+                }
+                val apkUrl = result.apkUrl
+                if (apkUrl.isNullOrBlank()) {
+                    runOnUiThread {
+                        binding.btnCheckUpdate.isEnabled = true
+                        binding.txtUpdateStatus.text =
+                            getString(R.string.update_no_apk, result.tagName)
+                    }
+                    return@thread
+                }
+                runOnUiThread {
+                    binding.txtUpdateStatus.text =
+                        getString(R.string.update_found, result.tagName)
+                }
+                val file = UpdateChecker.downloadApk(this, apkUrl) { pct ->
+                    runOnUiThread {
+                        binding.txtUpdateStatus.text =
+                            getString(R.string.update_downloading, pct)
+                    }
+                }
+                runOnUiThread {
+                    binding.txtUpdateStatus.text = getString(R.string.update_installing)
+                    installApk(file)
+                    binding.btnCheckUpdate.isEnabled = true
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    binding.btnCheckUpdate.isEnabled = true
+                    val msg = getString(R.string.update_fail, e.message ?: e.javaClass.simpleName)
+                    binding.txtUpdateStatus.text = msg
+                    Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun installApk(file: java.io.File) {
+        if (Build.VERSION.SDK_INT >= 26 && !packageManager.canRequestPackageInstalls()) {
+            toast(getString(R.string.update_need_install_perm))
+            try {
+                startActivity(
+                    Intent(
+                        android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                        Uri.parse("package:$packageName")
+                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            } catch (_: Exception) {
+            }
+            return
+        }
+        val uri = FileProvider.getUriForFile(this, "$packageName.files", file)
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/vnd.android.package-archive")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
+    }
+
+    private fun openUrl(url: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (_: Exception) {
         }
     }
 

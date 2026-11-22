@@ -20,21 +20,46 @@
 
         <TextView
             android:id="@+id/txtWidgetTime"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="end"
+            android:clickable="true"
+            android:focusable="true"
             android:maxLines="1"
-            android:text="11:30 AM  CN 22/11"
+            android:paddingVertical="2dp"
+            android:text="11:30 AM"
             android:textColor="#0F172A"
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- giữ id cũ (ẩn) -->
         <TextView
             android:id="@+id/txtWidgetDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:clickable="false"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="CN 22/11"
+            android:textColor="#64748B"
+            android:textSize="12sp" />
+
+        <!-- khoảng trống không nhận click (tránh mở Cài đặt ngoài vùng đồng hồ) -->
+        <FrameLayout
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:clickable="false" />
+
+        <ImageView
+            android:id="@+id/btnMediaNow"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_scr01_chip"
+            android:contentDescription="@string/widget_media_now"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_media_note"
             android:visibility="gone" />
 
         <ImageView
@@ -65,6 +90,14 @@
             android:layout_height="16dp"
             android:layout_marginStart="8dp"
             android:contentDescription="@string/widget_signal" />
+
+        <ImageView
+            android:id="@+id/imgBattery"
+            android:layout_width="46dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/widget_battery"
+            android:scaleType="fitCenter" />
     </LinearLayout>
 
     <!-- Tên mạng — nhấn mở Cài đặt mật khẩu hotspot hệ thống -->

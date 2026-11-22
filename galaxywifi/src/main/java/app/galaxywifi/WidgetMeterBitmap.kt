@@ -126,7 +126,7 @@ object WidgetMeterBitmap {
             textSize = heightPx * 0.55f
             typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
         }
-        val label = if (charging) "$percent%" else "$percent%"
+        val label = if (charging) "⚡$percent" else "$percent%"
         c.drawText(label, body.centerX(), body.centerY() + text.textSize * 0.35f, text)
         return bmp
     }

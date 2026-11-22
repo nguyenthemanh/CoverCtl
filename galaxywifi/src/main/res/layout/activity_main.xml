@@ -4,31 +4,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_mesh"
+    android:clipToPadding="false"
     android:fillViewport="true"
+    android:overScrollMode="ifContentScrolls"
     tools:ignore="UnusedAttribute">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:paddingTop="48dp">
+        android:paddingHorizontal="16dp"
+        android:paddingTop="40dp"
+        android:paddingBottom="36dp">
 
+        <!-- Header -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:letterSpacing="-0.02"
             android:text="@string/app_name"
             android:textColor="#0F172A"
-            android:textSize="28sp"
+            android:textSize="26sp"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:text="@string/app_subtitle"
             android:textColor="#64748B"
-            android:textSize="14sp" />
+            android:textSize="13sp" />
 
         <TextView
             android:id="@+id/txtAppVersion"
@@ -36,176 +41,334 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:textColor="#94A3B8"
-            android:textSize="12sp" />
+            android:textSize="11sp" />
 
-        <TextView
+        <!-- Tác giả + Cập nhật (đầu trang) -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/ap_creds_title"
-            android:textColor="#0F172A"
+            android:background="@drawable/bg_settings_section"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.06"
+                android:text="@string/section_author"
+                android:textAllCaps="true"
+                android:textColor="#64748B"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtAuthorName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingVertical="2dp"
+                android:textColor="#0B57D0"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/author_tap_hint"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="#1A64748B" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCheckUpdate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_check_update" />
+
+            <TextView
+                android:id="@+id/txtUpdateStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- 1. Trạng thái -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
+            android:text="@string/section_status"
+            android:textAllCaps="true"
+            android:textColor="#64748B"
+            android:textSize="11sp"
             android:textStyle="bold"
-            android:textSize="16sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/ap_creds_hint"
-            android:textColor="#64748B"
-            android:textSize="12sp" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/widget_net_name">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editApSsid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:maxLines="1" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/widget_net_pass">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editApPass"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textVisiblePassword"
-                android:maxLines="1" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveApCreds"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/btn_save_ap_creds" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnToggleHotspot"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/btn_toggle_hotspot" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOpenHotspotSettings"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/btn_open_hotspot_settings" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnToggleMobileData"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/btn_mobile_data_off" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/hint_main"
-            android:textColor="#475569"
-            android:textSize="13sp" />
-
-        <TextView
-            android:id="@+id/txtPreview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_mono_panel"
-            android:fontFamily="monospace"
-            android:padding="12dp"
-            android:textColor="#0F172A"
-            android:textSize="12sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnGrantPerms"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/btn_grant_perms" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddCover"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/btn_add_cover_widget" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnPinHome"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/btn_pin_home_widget" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAllowCover"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/btn_allow_cover" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOpenOnCover"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/btn_open_on_cover" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOpenApps"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/btn_open_apps" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/fav_section_title"
-            android:textColor="#0F172A"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/fav_section_hint"
-            android:textColor="#64748B"
-            android:textSize="13sp" />
+            android:letterSpacing="0.06" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_glass_card"
+            android:background="@drawable/bg_settings_section"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="14dp">
+
+            <TextView
+                android:id="@+id/txtPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="3dp"
+                android:textColor="#334155"
+                android:textSize="13sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRefresh"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="4dp"
+                android:minWidth="0dp"
+                android:text="@string/btn_refresh_widget" />
+        </LinearLayout>
+
+        <!-- 2. Hotspot & dữ liệu -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.06"
+            android:text="@string/section_hotspot"
+            android:textAllCaps="true"
+            android:textColor="#64748B"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_settings_section"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ap_creds_title"
+                android:textColor="#0F172A"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/ap_creds_hint"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="@string/widget_net_name">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editApSsid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:hint="@string/widget_net_pass">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editApPass"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textVisiblePassword"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveApCreds"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/btn_save_ap_creds" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnToggleHotspot"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_toggle_hotspot" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnToggleMobileData"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_mobile_data_off" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOpenHotspotSettings"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/btn_open_hotspot_settings" />
+        </LinearLayout>
+
+        <!-- 3. Màn ngoài -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.06"
+            android:text="@string/section_cover"
+            android:textAllCaps="true"
+            android:textColor="#64748B"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_settings_section"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/section_cover_hint"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddCover"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_add_cover_widget" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPinHome"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_pin_home_widget" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAllowCover"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/btn_allow_cover" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOpenOnCover"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_open_on_cover" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOpenApps"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_open_apps" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 4. App ưu tiên -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.06"
+            android:text="@string/fav_section_title"
+            android:textAllCaps="true"
+            android:textColor="#64748B"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_settings_section"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/fav_section_hint"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnFav0"
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:text="@string/fav_slot_empty" />
 
             <com.google.android.material.button.MaterialButton
@@ -213,7 +376,7 @@
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:text="@string/fav_slot_empty" />
 
             <com.google.android.material.button.MaterialButton
@@ -221,7 +384,7 @@
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:text="@string/fav_slot_empty" />
 
             <com.google.android.material.button.MaterialButton
@@ -229,212 +392,306 @@
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:text="@string/fav_slot_empty" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnUsageAccess"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="@string/btn_usage_access" />
+                android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnClearFavs"
-                style="@style/Widget.Material3.Button.TextButton"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnUsageAccess"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_usage_access" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClearFavs"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_clear_favs" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 5. Giao diện widget -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.06"
+            android:text="@string/widget_options_title"
+            android:textAllCaps="true"
+            android:textColor="#64748B"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_settings_section"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/widget_layout_title"
+                android:textColor="#0F172A"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="@string/btn_clear_favs" />
+                android:text="@string/widget_layout_hint"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/txtLayoutScale"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#0F172A"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/txtLayoutOffset"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="#64748B"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnZoomOut"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_zoom_out" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnZoomIn"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_zoom_in" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMoveLeft"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="3dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_move_left" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMoveUp"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="3dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_move_up" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMoveDown"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="3dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_move_down" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMoveRight"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_move_right" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLayoutReset"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:minWidth="0dp"
+                android:text="@string/btn_layout_reset" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"
+                android:background="#1A64748B" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchDark"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/widget_opt_dark" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchAutoDark"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/widget_opt_auto_dark" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchCalendar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/widget_opt_calendar" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchCalCharging"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/widget_opt_cal_charging" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchMeters"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/widget_opt_meters" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchSignal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/widget_opt_signal" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/widget_opt_data" />
         </LinearLayout>
 
+        <!-- 6. Ngôn ngữ -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.06"
             android:text="@string/section_language"
-            android:textColor="#0F172A"
+            android:textAllCaps="true"
+            android:textColor="#64748B"
+            android:textSize="11sp"
             android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/hint_language"
-            android:textColor="#64748B"
-            android:textSize="12sp" />
-
-        <Spinner
-            android:id="@+id/spinnerLanguage"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/widget_layout_title"
-            android:textColor="#0F172A"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/widget_layout_hint"
-            android:textColor="#64748B"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/txtLayoutScale"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="#0F172A"
-            android:textSize="13sp" />
-
-        <TextView
-            android:id="@+id/txtLayoutOffset"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textColor="#64748B"
-            android:textSize="13sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
+            android:background="@drawable/bg_settings_section"
+            android:orientation="vertical"
+            android:padding="14dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnZoomOut"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:layout_weight="1"
-                android:text="@string/btn_zoom_out" />
+                android:text="@string/hint_language"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnZoomIn"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_weight="1"
-                android:text="@string/btn_zoom_in" />
+            <Spinner
+                android:id="@+id/spinnerLanguage"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp" />
         </LinearLayout>
+
+        <!-- 7. Quyền -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.06"
+            android:text="@string/section_permissions"
+            android:textAllCaps="true"
+            android:textColor="#64748B"
+            android:textSize="11sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:background="@drawable/bg_settings_section"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/section_permissions_hint"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMoveLeft"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
+                android:id="@+id/btnGrantPerms"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:layout_weight="1"
-                android:text="@string/btn_move_left" />
+                android:layout_marginTop="10dp"
+                android:text="@string/btn_grant_perms" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMoveUp"
+                android:id="@+id/btnMediaAccess"
                 style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="4dp"
-                android:layout_weight="1"
-                android:text="@string/btn_move_up" />
+                android:layout_marginTop="6dp"
+                android:text="@string/btn_media_access" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMoveDown"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="4dp"
-                android:layout_weight="1"
-                android:text="@string/btn_move_down" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMoveRight"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_weight="1"
-                android:text="@string/btn_move_right" />
+                android:layout_marginTop="10dp"
+                android:text="@string/hint_main"
+                android:textColor="#94A3B8"
+                android:textSize="11sp" />
         </LinearLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnLayoutReset"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_layout_reset" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/widget_options_title"
-            android:textColor="#0F172A"
-            android:textStyle="bold" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchDark"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/widget_opt_dark" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchAutoDark"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/widget_opt_auto_dark" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchCalendar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/widget_opt_calendar" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchCalCharging"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/widget_opt_cal_charging" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchMeters"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/widget_opt_meters" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchSignal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/widget_opt_signal" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchData"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/widget_opt_data" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRefresh"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/btn_refresh_widget" />
     </LinearLayout>
 </ScrollView>

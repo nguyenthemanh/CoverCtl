@@ -18,7 +18,6 @@ object Prefs {
     private const val KEY_WIDGET_SCALE = "widget_scale_pct"
     private const val KEY_WIDGET_OX = "widget_offset_x"
     private const val KEY_WIDGET_OY = "widget_offset_y"
-
     private fun sp(context: Context) =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
 

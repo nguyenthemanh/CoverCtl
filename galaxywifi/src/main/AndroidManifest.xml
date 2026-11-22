@@ -27,6 +27,7 @@
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <uses-feature
         android:name="android.software.leanback"
@@ -111,6 +112,26 @@
             android:theme="@style/Theme.GalaxyWifi"
             android:turnScreenOn="true"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|density|uiMode" />
+
+        <service
+            android:name=".MediaNotifListener"
+            android:exported="true"
+            android:label="@string/widget_media_listener_label"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <receiver
             android:name=".MobileWifiWidgetProvider"

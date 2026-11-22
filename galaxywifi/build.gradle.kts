@@ -11,8 +11,11 @@ android {
         applicationId = "app.galaxywifi"
         minSdk = 28
         targetSdk = 35
-        versionCode = 31
-        versionName = "1.3.1"
+        versionCode = 1
+        versionName = "1.0.0"
+        buildConfigField("String", "GITHUB_REPO", "\"nguyenthemanh/GalaxyWifi\"")
+        buildConfigField("String", "AUTHOR_NAME", "\"Nguyễn Thế Mạnh\"")
+        buildConfigField("String", "AUTHOR_URL", "\"https://www.facebook.com/nnguyenthemanh\"")
     }
 
     buildTypes {

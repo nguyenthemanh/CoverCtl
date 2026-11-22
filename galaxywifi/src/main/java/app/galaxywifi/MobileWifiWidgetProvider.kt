@@ -45,8 +45,9 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
                 handleTile(context, tile)
                 // Wi‑Fi/hotspot cần chút thời gian để trạng thái đổi
                 val delay = if (
-                    tile == TILE_WIFI || tile == TILE_HOTSPOT || tile == TILE_TETHER || tile == TILE_DATA
-                ) 1200L else 0L
+                    tile == TILE_WIFI || tile == TILE_HOTSPOT || tile == TILE_TETHER ||
+                        tile == TILE_DATA || tile == TILE_MEDIA
+                ) 800L else 0L
                 android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                     refreshAll(context)
                 }, delay)
@@ -92,6 +93,17 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
             }
             TILE_SIGNAL, TILE_NETWORK -> openNetworkModeSettings(context)
             TILE_QR, TILE_PASS -> openHotspotPasswordSettings(context)
+            TILE_MEDIA -> {
+                val now = NowPlaying.read(context)
+                when {
+                    now != null -> {
+                        if (!NowPlaying.togglePlayPause(context) && now.packageName.isNotBlank()) {
+                            NowPlaying.openApp(context, now.packageName)
+                        }
+                    }
+                    !MediaNotifListener.isEnabled(context) -> MediaNotifListener.openSettings(context)
+                }
+            }
             TILE_FAV0, TILE_FAV1, TILE_FAV2, TILE_FAV3 -> {
                 val idx = when (tile) {
                     TILE_FAV0 -> 0
@@ -350,6 +362,7 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
         const val TILE_NETWORK = "network"
         const val TILE_QR = "qr"
         const val TILE_PASS = "pass"
+        const val TILE_MEDIA = "media"
         const val TILE_APPS = "apps"
         const val TILE_FAV0 = "fav0"
         const val TILE_FAV1 = "fav1"
@@ -377,13 +390,27 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
 
             val now = Date()
             val time = DateFormat.getTimeFormat(context).format(now)
-            views.setTextViewText(R.id.txtWidgetTime, "$time  ${compactDate(context, now)}")
-            views.setViewVisibility(R.id.txtWidgetDate, View.GONE)
+            views.setTextViewText(R.id.txtWidgetTime, time)
+            views.setTextViewText(R.id.txtWidgetDate, compactDate(context, now))
+            views.setViewVisibility(R.id.txtWidgetDate, View.VISIBLE)
             // Icon: đang sáng → hiện trăng (bấm sang tối); đang tối → hiện nắng
             views.setImageViewResource(
                 R.id.btnThemeToggle,
                 if (dark) R.drawable.ic_theme_light else R.drawable.ic_theme_dark
             )
+            val nowPlaying = NowPlaying.read(context)
+            if (nowPlaying != null) {
+                views.setViewVisibility(R.id.btnMediaNow, View.VISIBLE)
+                // Nút tạm dừng / phát tiếp (không dùng icon app)
+                val playIcon = if (dark) {
+                    if (nowPlaying.playing) R.drawable.ic_media_pause_dark else R.drawable.ic_media_play_dark
+                } else {
+                    if (nowPlaying.playing) R.drawable.ic_media_pause else R.drawable.ic_media_play
+                }
+                views.setImageViewResource(R.id.btnMediaNow, playIcon)
+            } else {
+                views.setViewVisibility(R.id.btnMediaNow, View.GONE)
+            }
             views.setTextViewText(R.id.txtWidgetNetwork, status.uplinkLabel)
             val apName = when {
                 status.apSsid.isNotBlank() -> status.apSsid
@@ -438,6 +465,7 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
             val blue = Color.parseColor("#0B57D0")
 
             views.setTextViewTextSize(R.id.txtWidgetTime, TypedValue.COMPLEX_UNIT_SP, ssp(16f))
+            views.setTextViewTextSize(R.id.txtWidgetDate, TypedValue.COMPLEX_UNIT_SP, ssp(12f))
             views.setTextViewTextSize(R.id.txtWidgetNetwork, TypedValue.COMPLEX_UNIT_SP, ssp(12f))
             views.setTextViewTextSize(R.id.txtApLabel, TypedValue.COMPLEX_UNIT_SP, ssp(11f))
             views.setTextViewTextSize(R.id.txtWidgetLink, TypedValue.COMPLEX_UNIT_SP, ssp(16f))
@@ -451,13 +479,29 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
             views.setTextViewTextSize(R.id.txtWidgetData, TypedValue.COMPLEX_UNIT_SP, ssp(10f))
             views.setTextViewTextSize(R.id.txtWidgetSignal, TypedValue.COMPLEX_UNIT_SP, ssp(10f))
 
-            // Status icons (không hiện pin — góc phải hệ thống đã có)
             views.setImageViewBitmap(
                 R.id.imgSignalBars,
                 WidgetMeterBitmap.signalBars(
                     sdp(28), sdp(16), status.signalLevel,
                     if (dark) Color.parseColor("#93C5FD") else blue,
                     track
+                )
+            )
+            val batFill = when {
+                status.charging -> Color.parseColor("#16A34A")
+                status.batteryPercent <= 15 -> Color.parseColor("#DC2626")
+                dark -> Color.parseColor("#38BDF8")
+                else -> blue
+            }
+            views.setImageViewBitmap(
+                R.id.imgBattery,
+                WidgetMeterBitmap.batteryPill(
+                    sdp(46), sdp(18),
+                    status.batteryPercent,
+                    status.charging,
+                    batFill,
+                    if (dark) Color.parseColor("#64748B") else Color.parseColor("#94A3B8"),
+                    if (dark) Color.parseColor("#F8FAFC") else Color.parseColor("#0F172A")
                 )
             )
 
@@ -544,6 +588,7 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
             }
             bindTile(context, views, widgetId, R.id.btnHotspotToggle, TILE_HOTSPOT)
             bindTile(context, views, widgetId, R.id.btnThemeToggle, TILE_DARK)
+            bindTile(context, views, widgetId, R.id.btnMediaNow, TILE_MEDIA)
             // Không gán click root (tránh nuốt tap Data → mở nhầm Wi‑Fi/tether)
             bindTile(context, views, widgetId, R.id.txtWidgetTime, TILE_SETTINGS)
 
@@ -671,12 +716,14 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
             ).forEach { views.setInt(it, "setBackgroundResource", tile) }
             views.setInt(R.id.txtWidgetNetwork, "setBackgroundResource", chip)
             views.setInt(R.id.btnThemeToggle, "setBackgroundResource", chip)
+            views.setInt(R.id.btnMediaNow, "setBackgroundResource", chip)
             views.setInt(R.id.panelClients, "setBackgroundResource", chip)
             views.setInt(R.id.btnTileApps, "setBackgroundResource", chip)
             views.setInt(R.id.btnHotspotToggle, "setBackgroundResource", chip)
             views.setTextColor(R.id.btnTileApps, accent)
 
             views.setTextColor(R.id.txtWidgetTime, primary)
+            views.setTextColor(R.id.txtWidgetDate, muted)
             views.setTextColor(R.id.txtWidgetNetwork, accent)
             views.setTextColor(R.id.txtApLabel, muted)
             views.setTextColor(R.id.txtWidgetLink, primary)
