@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.CoverCtl" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/ios_blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/mesh_a</item>
+        <item name="colorSecondary">@color/ios_teal</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSurface">@color/ios_card_solid</item>
+        <item name="colorOnSurface">@color/ios_label</item>
+        <item name="colorOnSurfaceVariant">@color/ios_secondary_label</item>
+        <item name="android:colorBackground">@color/ios_grouped_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/ios_grouped_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="shapeAppearanceSmallComponent">@style/Shape.CoverCtl.Pill</item>
+        <item name="shapeAppearanceMediumComponent">@style/Shape.CoverCtl.Card</item>
+        <item name="shapeAppearanceLargeComponent">@style/Shape.CoverCtl.Card</item>
+        <item name="materialButtonStyle">@style/Widget.CoverCtl.Button</item>
+        <item name="borderlessButtonStyle">@style/Widget.CoverCtl.Button.Text</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.CoverCtl.Dialog</item>
+    </style>
+
+    <style name="Shape.CoverCtl.Pill" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="Shape.CoverCtl.Card" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">22dp</item>
+    </style>
+
+    <style name="Widget.CoverCtl.Button" parent="Widget.Material3.Button">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:minHeight">50dp</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="backgroundTint">@color/ios_blue</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Widget.CoverCtl.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="backgroundTint">@color/mesh_a</item>
+        <item name="android:textColor">@color/ios_blue</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Widget.CoverCtl.Button.Outline" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="strokeColor">@color/ios_separator</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:textColor">@color/ios_label</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Widget.CoverCtl.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/ios_blue</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="TextAppearance.CoverCtl.LargeTitle" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:textSize">34sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/ios_label</item>
+        <item name="android:letterSpacing">-0.03</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.CoverCtl.Section" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/ios_secondary_label</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.CoverCtl.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/ios_secondary_label</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="TextAppearance.CoverCtl.Mono" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:textColor">@color/ios_label</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+    </style>
+
+    <style name="ThemeOverlay.CoverCtl.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/Shape.CoverCtl.Card</item>
+        <item name="colorPrimary">@color/ios_blue</item>
+    </style>
+</resources>
