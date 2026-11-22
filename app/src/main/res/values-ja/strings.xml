@@ -110,8 +110,8 @@
     <string name="cmd_mode_main">Main モード</string>
     <string name="cmd_mode_cover">Cover モード</string>
     <string name="cmd_mode_dual">Dual モード</string>
-    <string name="section_one_hand">ワンハンド / 端ジェスチャー（カバー）</string>
-    <string name="hint_one_hand">Samsung One Hand Operation+ は Flip カバー非対応です。CoverCtl が OHO+ 風の端ジェスチャーを提供：短いスワイプ = 戻る/ホーム/履歴；長いスワイプ = 通知 / QS / 消灯。Good Lock / MultiStar / OHO+（メイン画面用）も開けます。</string>
+    <string name="section_one_hand">CoverCtl 内蔵ワンハンド（カバー）</string>
+    <string name="hint_one_hand">CoverCtl 本体の機能です（カバー用の別アプリ不要）。Samsung OHO+ は Flip カバー非対応 — CoverCtl が OHO+ 風の端ジェスチャーを描画：短いスワイプ = 戻る/ホーム/履歴；長いスワイプ = 通知 / QS / 消灯。下のボタンはメイン画面用に Good Lock / MultiStar / OHO+ を開くだけです。</string>
     <string name="btn_edge_gestures">カバー端ジェスチャーを有効化</string>
     <string name="btn_edge_both">両端（左+右）</string>
     <string name="btn_show_nav_bar">戻る/ホーム/履歴バーを表示</string>

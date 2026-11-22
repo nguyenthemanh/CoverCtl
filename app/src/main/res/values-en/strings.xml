@@ -110,8 +110,8 @@
     <string name="cmd_mode_main">Main mode</string>
     <string name="cmd_mode_cover">Cover mode</string>
     <string name="cmd_mode_dual">Dual mode</string>
-    <string name="section_one_hand">One Hand / Edge gestures (cover)</string>
-    <string name="hint_one_hand">Samsung One Hand Operation+ does not run on the Flip cover. CoverCtl provides its own OHO+-style edge gestures: short swipe = Back/Home/Recents; long swipe = notifications / QS / screen off. You can still open Good Lock / MultiStar / install OHO+ for the main screen.</string>
+    <string name="section_one_hand">One Hand inside CoverCtl (cover)</string>
+    <string name="hint_one_hand">Built into CoverCtl (no separate cover app needed). Samsung OHO+ does not run on the Flip cover — CoverCtl draws OHO+-style edge gestures: short swipe = Back/Home/Recents; long swipe = notifications / QS / screen off. Buttons below only open Good Lock / MultiStar / install OHO+ for the main screen.</string>
     <string name="btn_edge_gestures">Enable cover edge gestures</string>
     <string name="btn_edge_both">Both edges (left + right)</string>
     <string name="btn_show_nav_bar">Show Back/Home/Recents bar</string>

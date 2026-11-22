@@ -398,31 +398,33 @@ class MainActivity : AppCompatActivity() {
             return
         }
         Thread {
+            val pm = packageManager
             val apps = PackageCommands.listUninstallableApps(this, includeSystem)
             val selected = Prefs.uninstallApps(this).toMutableSet()
-            val labels = apps.map { app ->
+            val picks = apps.map { app ->
                 val tag = if (app.system) " [HT]" else ""
-                "${app.label}$tag (${app.packageName})"
-            }.toTypedArray()
-            val checked = BooleanArray(apps.size) { selected.contains(apps[it].packageName) }
+                PickApp(
+                    packageName = app.packageName,
+                    label = "${app.label}$tag",
+                    subtitle = app.packageName,
+                    icon = AppPickAdapter.loadIcon(pm, app.packageName)
+                )
+            }
             runOnUiThread {
-                if (apps.isEmpty()) {
+                if (picks.isEmpty()) {
                     toast("Không tìm thấy app")
                     return@runOnUiThread
                 }
-                AlertDialog.Builder(this)
-                    .setTitle(R.string.uninstall_pick_title)
-                    .setMultiChoiceItems(labels, checked) { _, which, isChecked ->
-                        val pkg = apps[which].packageName
-                        if (isChecked) selected.add(pkg) else selected.remove(pkg)
-                    }
-                    .setPositiveButton(R.string.aa_pick_ok) { _, _ ->
+                showAppPickDialog(
+                    titleRes = R.string.uninstall_pick_title,
+                    picks = picks,
+                    selected = selected,
+                    onSave = {
                         Prefs.setUninstallApps(this, selected)
                         refreshUninstallCount()
                         toast(getString(R.string.uninstall_selected_count, selected.size))
                     }
-                    .setNegativeButton(R.string.aa_pick_cancel, null)
-                    .show()
+                )
             }
         }.start()
     }
@@ -454,26 +456,54 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAaAppPicker() {
         Thread {
+            val pm = packageManager
             val apps = AndroidAutoCommands.listLaunchableApps(this)
             val selected = Prefs.aaApps(this).toMutableSet()
-            val labels = apps.map { "${it.label} (${it.packageName})" }.toTypedArray()
-            val checked = BooleanArray(apps.size) { selected.contains(apps[it].packageName) }
+            val picks = apps.map { app ->
+                PickApp(
+                    packageName = app.packageName,
+                    label = app.label,
+                    subtitle = app.packageName,
+                    icon = AppPickAdapter.loadIcon(pm, app.packageName)
+                )
+            }
             runOnUiThread {
-                AlertDialog.Builder(this)
-                    .setTitle(R.string.aa_pick_title)
-                    .setMultiChoiceItems(labels, checked) { _, which, isChecked ->
-                        val pkg = apps[which].packageName
-                        if (isChecked) selected.add(pkg) else selected.remove(pkg)
-                    }
-                    .setPositiveButton(R.string.aa_pick_ok) { _, _ ->
+                showAppPickDialog(
+                    titleRes = R.string.aa_pick_title,
+                    picks = picks,
+                    selected = selected,
+                    onSave = {
                         Prefs.setAaApps(this, selected)
                         refreshAaCount()
                         toast(getString(R.string.aa_selected_count, selected.size))
                     }
-                    .setNegativeButton(R.string.aa_pick_cancel, null)
-                    .show()
+                )
             }
         }.start()
+    }
+
+    private fun showAppPickDialog(
+        titleRes: Int,
+        picks: List<PickApp>,
+        selected: MutableSet<String>,
+        onSave: () -> Unit
+    ) {
+        val adapter = AppPickAdapter(picks, selected)
+        val listView = android.widget.ListView(this).apply {
+            this.adapter = adapter
+            dividerHeight = 1
+            setOnItemClickListener { _, _, which, _ ->
+                val pkg = picks[which].packageName
+                if (!selected.add(pkg)) selected.remove(pkg)
+                adapter.notifyDataSetChanged()
+            }
+        }
+        AlertDialog.Builder(this)
+            .setTitle(titleRes)
+            .setView(listView)
+            .setPositiveButton(R.string.aa_pick_ok) { _, _ -> onSave() }
+            .setNegativeButton(R.string.aa_pick_cancel, null)
+            .show()
     }
 
     private fun shellNotReadyMessage(): String =
