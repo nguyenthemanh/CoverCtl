@@ -8,7 +8,9 @@ Control the Galaxy Z Flip **cover screen**, **Samsung DeX**, and **Android Auto*
 ## Features
 
 - **Privilege channels (pick one):** Shizuku **or** wireless ADB — independent, not mixed
-- **Cover UI:** full cover / Fold open mode, DPI scale, open Launcher/Settings on cover, restore navigation bar (Back/Home/Recents) on cover
+- **Screen modes (flip-ctl style):** Main / Cover only / Dual, keep Dual after sleep, Quick Settings tile
+- **Cover navigation overlay:** Back / Home / Recents on the cover (SystemUI has no nav bar there), plus floating panel button
+- **Cover UI:** full cover / Fold open mode, DPI scale, open Launcher/Settings on cover
 - **Identity presets:** Flip 5/6/7, Fold 5/6 (spoof needs Magisk; display works without root)
 - **DeX:** enable flags, open on external display, DeX settings / status
 - **Android Auto:** checklist, UnknownAuto / AnyAuto links, Play-mark install helper

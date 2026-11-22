@@ -12,9 +12,33 @@ object Prefs {
     private const val KEY_ADB_PORT = "adb_port"
     private const val KEY_ADB_PAIR_PORT = "adb_pair_port"
     private const val KEY_LANGUAGE = "language_tag"
+    private const val KEY_SCREEN_MODE = "screen_mode"
+    private const val KEY_KEEP_DUAL = "keep_dual"
+    private const val KEY_KEEP_DUAL_STATE = "keep_dual_state"
 
     private fun sp(context: Context) =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
+
+    fun screenMode(context: Context): String =
+        sp(context).getString(KEY_SCREEN_MODE, ScreenModes.Mode.MAIN.id) ?: ScreenModes.Mode.MAIN.id
+
+    fun setScreenMode(context: Context, mode: String) {
+        sp(context).edit().putString(KEY_SCREEN_MODE, mode).apply()
+    }
+
+    fun keepDual(context: Context): Boolean =
+        sp(context).getBoolean(KEY_KEEP_DUAL, true)
+
+    fun setKeepDual(context: Context, keep: Boolean) {
+        sp(context).edit().putBoolean(KEY_KEEP_DUAL, keep).apply()
+    }
+
+    fun keepDualStateId(context: Context): Int =
+        sp(context).getInt(KEY_KEEP_DUAL_STATE, 4)
+
+    fun setKeepDualStateId(context: Context, id: Int) {
+        sp(context).edit().putInt(KEY_KEEP_DUAL_STATE, id).apply()
+    }
 
     fun languageTag(context: Context): String =
         sp(context).getString(KEY_LANGUAGE, LocaleHelper.SYSTEM) ?: LocaleHelper.SYSTEM

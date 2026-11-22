@@ -49,6 +49,95 @@
                 android:text="@string/app_subtitle"
                 android:textAppearance="@style/TextAppearance.CoverCtl.Body" />
 
+            <!-- Screen modes (flip-ctl parity) -->
+            <TextView
+                style="@style/TextAppearance.CoverCtl.Section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/section_screen_mode" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_glass_card"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_screen_mode"
+                    android:textAppearance="@style/TextAppearance.CoverCtl.Body"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/txtScreenMode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/ios_label"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnModeMain"
+                        style="@style/Widget.CoverCtl.Button.Outline"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/mode_main_short" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnModeCover"
+                        style="@style/Widget.CoverCtl.Button.Outline"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="@string/mode_cover_short" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnModeDual"
+                        style="@style/Widget.CoverCtl.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="@string/mode_dual_short" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchKeepDual"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/btn_keep_dual" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOverlayPerm"
+                    style="@style/Widget.CoverCtl.Button.Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_overlay_perm" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDoctor"
+                    style="@style/Widget.CoverCtl.Button.Outline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/btn_doctor" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/txtShizuku"
                 android:layout_width="wrap_content"

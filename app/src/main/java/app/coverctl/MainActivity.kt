@@ -55,9 +55,31 @@ class MainActivity : AppCompatActivity() {
         refreshAaCount()
         refreshUninstallCount()
         refreshDeviceInfo()
+        refreshScreenModeUi()
 
         binding.btnAppSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        binding.btnModeMain.setOnClickListener { applyScreenMode(ScreenModes.Mode.MAIN) }
+        binding.btnModeCover.setOnClickListener { applyScreenMode(ScreenModes.Mode.COVER) }
+        binding.btnModeDual.setOnClickListener { applyScreenMode(ScreenModes.Mode.DUAL) }
+        binding.switchKeepDual.isChecked = Prefs.keepDual(this)
+        binding.switchKeepDual.setOnCheckedChangeListener { _, checked ->
+            Prefs.setKeepDual(this, checked)
+            if (!checked) DualKeepService.stop(this)
+        }
+        binding.btnOverlayPerm.setOnClickListener {
+            if (Shell.available()) {
+                runCmd(getString(R.string.btn_overlay_perm)) {
+                    ScreenModes.grantOverlay(this@MainActivity)
+                }
+            }
+            ScreenModes.openOverlaySettings(this)
+        }
+        binding.btnDoctor.setOnClickListener {
+            runCmd(getString(R.string.btn_doctor)) {
+                Shell.Result(0, ScreenModes.doctor(this@MainActivity), "")
+            }
         }
         binding.btnAutoSetup.setOnClickListener {
             toast(PrivilegeManager.autoSetup(this))
@@ -168,7 +190,17 @@ class MainActivity : AppCompatActivity() {
         }
         binding.btnRestoreNav.setOnClickListener {
             runCmd(getString(R.string.cmd_restore_nav)) {
-                CoverCommands.restoreCoverNavigation(currentProfile())
+                ScreenModes.grantOverlay(this@MainActivity)
+                val r = CoverCommands.restoreCoverNavigation(currentProfile())
+                CoverNavOverlayService.start(
+                    this@MainActivity,
+                    Prefs.screenMode(this@MainActivity).ifBlank { ScreenModes.Mode.DUAL.id }
+                )
+                r
+            }
+            if (!android.provider.Settings.canDrawOverlays(this)) {
+                toast(getString(R.string.toast_need_overlay))
+                ScreenModes.openOverlaySettings(this)
             }
         }
 
@@ -215,6 +247,36 @@ class MainActivity : AppCompatActivity() {
         refreshAaCount()
         refreshUninstallCount()
         refreshDeviceInfo()
+        refreshScreenModeUi()
+    }
+
+    private fun applyScreenMode(mode: ScreenModes.Mode) {
+        val label = when (mode) {
+            ScreenModes.Mode.MAIN -> getString(R.string.cmd_mode_main)
+            ScreenModes.Mode.COVER -> getString(R.string.cmd_mode_cover)
+            ScreenModes.Mode.DUAL -> getString(R.string.cmd_mode_dual)
+        }
+        if ((mode == ScreenModes.Mode.COVER || mode == ScreenModes.Mode.DUAL) &&
+            !android.provider.Settings.canDrawOverlays(this)
+        ) {
+            toast(getString(R.string.toast_need_overlay))
+            ScreenModes.openOverlaySettings(this)
+        }
+        runCmd(label) {
+            ScreenModes.apply(this@MainActivity, mode, keepDual = Prefs.keepDual(this@MainActivity), profile = currentProfile())
+        }
+        binding.root.postDelayed({ refreshScreenModeUi() }, 1200)
+    }
+
+    private fun refreshScreenModeUi() {
+        val mode = ScreenModes.Mode.fromId(Prefs.screenMode(this))
+        val label = when (mode) {
+            ScreenModes.Mode.MAIN -> getString(R.string.mode_main)
+            ScreenModes.Mode.COVER -> getString(R.string.mode_cover)
+            ScreenModes.Mode.DUAL -> getString(R.string.mode_dual)
+        }
+        binding.txtScreenMode.text = getString(R.string.screen_mode_status, label)
+        binding.switchKeepDual.isChecked = Prefs.keepDual(this)
     }
 
     override fun onDestroy() {
@@ -478,6 +540,7 @@ class MainActivity : AppCompatActivity() {
             binding.btnAaUnlock, binding.btnAaSettings, binding.btnAaStatus,
             binding.btnUninstallPick, binding.btnUninstallPickSystem,
             binding.btnUninstallRun, binding.btnUninstallKeepData,
+            binding.btnModeMain, binding.btnModeCover, binding.btnModeDual, binding.btnDoctor,
             binding.btnLauncher, binding.btnSettings, binding.btnRestoreNav,
             binding.btnSmall, binding.btnNormal, binding.btnLarge, binding.btnXlarge,
             binding.btnResetDpi, binding.seekDpi
