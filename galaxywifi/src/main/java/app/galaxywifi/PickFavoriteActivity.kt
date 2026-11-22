@@ -3,6 +3,7 @@ package app.galaxywifi
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -28,6 +29,7 @@ class PickFavoriteActivity : AppCompatActivity() {
     private var shown = emptyList<AppRow>()
     private lateinit var grid: GridView
     private lateinit var countTxt: TextView
+    private lateinit var search: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,21 +39,13 @@ class PickFavoriteActivity : AppCompatActivity() {
             getString(R.string.fav_pick_title, slot + 1)
         grid = findViewById(R.id.gridApps)
         countTxt = findViewById(R.id.txtAppCount)
-        val search = findViewById<EditText>(R.id.editSearch)
-
-        all = loadApps().sortedBy { it.label.lowercase() }
-        shown = all
-        bindGrid()
+        search = findViewById(R.id.editSearch)
 
         search.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                val q = s?.toString()?.trim().orEmpty().lowercase()
-                shown = if (q.isEmpty()) all else all.filter {
-                    it.label.lowercase().contains(q) || it.packageName.lowercase().contains(q)
-                }
-                bindGrid()
+                applyFilter()
             }
         })
 
@@ -69,6 +63,20 @@ class PickFavoriteActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        all = loadApps().sortedBy { it.label.lowercase() }
+        applyFilter()
+    }
+
+    private fun applyFilter() {
+        val q = search.text?.toString()?.trim().orEmpty().lowercase()
+        shown = if (q.isEmpty()) all else all.filter {
+            it.label.lowercase().contains(q) || it.packageName.lowercase().contains(q)
+        }
+        bindGrid()
+    }
+
     private fun bindGrid() {
         countTxt.text = getString(R.string.app_drawer_count, shown.size)
         grid.adapter = Adapter(shown)
@@ -78,7 +86,16 @@ class PickFavoriteActivity : AppCompatActivity() {
         val pm = packageManager
         val seen = LinkedHashMap<String, AppRow>()
         fun addFrom(intent: Intent) {
-            for (ri in pm.queryIntentActivities(intent, PackageManager.MATCH_ALL)) {
+            val list = if (Build.VERSION.SDK_INT >= 33) {
+                pm.queryIntentActivities(
+                    intent,
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong())
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                pm.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+            }
+            for (ri in list) {
                 val pkg = ri.activityInfo.packageName
                 if (pkg == packageName || seen.containsKey(pkg)) continue
                 val label = ri.loadLabel(pm)?.toString().orEmpty().ifBlank { pkg }

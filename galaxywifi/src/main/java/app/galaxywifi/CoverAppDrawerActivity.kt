@@ -1,7 +1,10 @@
 package app.galaxywifi
 
 import android.app.ActivityOptions
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -20,17 +23,25 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 
 /**
  * Tất cả app trên cover.
- * 4 ô ưu tiên chỉnh trên widget / trong app chính (không chiếm chỗ ở đây).
+ * Tự làm mới khi cài/gỡ app hoặc quay lại màn hình.
  * Nhấn giữ app → ghim vào ô 1–4 trên widget.
  */
 class CoverAppDrawerActivity : AppCompatActivity() {
     private lateinit var grid: GridView
     private lateinit var countTxt: TextView
+    private lateinit var search: EditText
     private var all = emptyList<DrawerApp>()
     private var shown = emptyList<DrawerApp>()
+
+    private val packageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            reloadApps()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,21 +58,13 @@ class CoverAppDrawerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_cover_app_drawer)
         grid = findViewById(R.id.gridApps)
         countTxt = findViewById(R.id.txtAppCount)
-        val search = findViewById<EditText>(R.id.editSearch)
-
-        all = loadApps().sortedBy { it.label.lowercase() }
-        shown = all
-        bindGrid()
+        search = findViewById(R.id.editSearch)
 
         search.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                val q = s?.toString()?.trim().orEmpty().lowercase()
-                shown = if (q.isEmpty()) all else all.filter {
-                    it.label.lowercase().contains(q) || it.packageName.lowercase().contains(q)
-                }
-                bindGrid()
+                applyFilter()
             }
         })
 
@@ -74,6 +77,49 @@ class CoverAppDrawerActivity : AppCompatActivity() {
             pickSlotForApp(app)
             true
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addDataScheme("package")
+        }
+        ContextCompat.registerReceiver(
+            this,
+            packageReceiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+    }
+
+    override fun onStop() {
+        try {
+            unregisterReceiver(packageReceiver)
+        } catch (_: Exception) {
+        }
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        reloadApps()
+    }
+
+    private fun reloadApps() {
+        all = loadApps().sortedBy { it.label.lowercase() }
+        applyFilter()
+    }
+
+    private fun applyFilter() {
+        val q = search.text?.toString()?.trim().orEmpty().lowercase()
+        shown = if (q.isEmpty()) all else all.filter {
+            it.label.lowercase().contains(q) || it.packageName.lowercase().contains(q)
+        }
+        bindGrid()
     }
 
     private fun pickSlotForApp(app: DrawerApp) {
@@ -107,7 +153,15 @@ class CoverAppDrawerActivity : AppCompatActivity() {
         val pm = packageManager
         val seen = LinkedHashMap<String, DrawerApp>()
         fun addFrom(intent: Intent) {
-            val list = pm.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+            val list = if (Build.VERSION.SDK_INT >= 33) {
+                pm.queryIntentActivities(
+                    intent,
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong())
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                pm.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+            }
             for (ri in list) {
                 val pkg = ri.activityInfo.packageName
                 if (pkg == packageName) continue

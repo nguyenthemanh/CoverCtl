@@ -11,6 +11,7 @@ import android.graphics.Color
 import android.os.Build
 import android.provider.Settings
 import android.text.format.DateFormat
+import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import java.util.Calendar
@@ -43,7 +44,9 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
                 val tile = intent.getStringExtra(EXTRA_TILE).orEmpty()
                 handleTile(context, tile)
                 // Wi‑Fi/hotspot cần chút thời gian để trạng thái đổi
-                val delay = if (tile == TILE_WIFI || tile == TILE_HOTSPOT || tile == TILE_TETHER) 1200L else 0L
+                val delay = if (
+                    tile == TILE_WIFI || tile == TILE_HOTSPOT || tile == TILE_TETHER || tile == TILE_DATA
+                ) 1200L else 0L
                 android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                     refreshAll(context)
                 }, delay)
@@ -75,7 +78,18 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
             TILE_WIFI -> openWifiSettings(context)
             TILE_SETTINGS -> openOnCover(context, MainActivity::class.java)
             TILE_APPS -> openOnCover(context, CoverAppDrawerActivity::class.java)
-            TILE_DATA -> openDataUsageSettings(context)
+            TILE_DATA -> {
+                val wasOn = MobileDataToggle.isEnabled(context)
+                val ok = MobileDataToggle.toggle(context)
+                if (!ok) openMobileDataSettings(context)
+                else {
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        if (MobileDataToggle.isEnabled(context) == wasOn) {
+                            openMobileDataSettings(context)
+                        }
+                    }, 1200L)
+                }
+            }
             TILE_SIGNAL, TILE_NETWORK -> openNetworkModeSettings(context)
             TILE_QR, TILE_PASS -> openHotspotPasswordSettings(context)
             TILE_FAV0, TILE_FAV1, TILE_FAV2, TILE_FAV3 -> {
@@ -119,6 +133,28 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
         } catch (_: Exception) {
             context.startActivity(intent)
         }
+    }
+
+    /** Màn công tắc dữ liệu di động hệ thống. */
+    private fun openMobileDataSettings(context: Context) {
+        val candidates = listOf(
+            Intent(Settings.ACTION_DATA_ROAMING_SETTINGS),
+            Intent(Settings.ACTION_NETWORK_OPERATOR_SETTINGS),
+            Intent().setClassName(
+                "com.android.settings",
+                "com.android.settings.Settings\$MobileNetworkActivity"
+            ),
+            Intent().setClassName(
+                "com.android.settings",
+                "com.android.settings.Settings\$DataUsageSummaryActivity"
+            ),
+            Intent().setClassName(
+                "com.samsung.android.app.telephonyui",
+                "com.samsung.android.app.telephonyui.netsettings.ui.NetSettingsActivity"
+            ),
+            Intent("android.settings.MOBILE_DATA_USAGE")
+        )
+        openFirstWorking(context, candidates)
     }
 
     /** Khoang tròn Data → Data SIM / sử dụng dữ liệu di động (không mở Wi‑Fi). */
@@ -331,9 +367,13 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
             val views = RemoteViews(context.packageName, R.layout.widget_mobile_wifi)
             val dark = resolveDark(context)
             val dens = context.resources.displayMetrics.density
+            val scale = Prefs.widgetScalePct(context) / 100f
             fun dp(v: Int) = (v * dens).toInt().coerceAtLeast(1)
+            fun sdp(v: Int) = ((v * dens * scale).toInt()).coerceAtLeast(1)
+            fun ssp(v: Float) = v * scale
 
             applyTheme(views, dark)
+            applyLayoutAdjust(views, context, dens, scale)
 
             val now = Date()
             val time = DateFormat.getTimeFormat(context).format(now)
@@ -375,7 +415,20 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
                 if (status.hotspotOn) Color.parseColor("#DC2626") else Color.parseColor("#0B57D0")
             )
             views.setTextViewText(R.id.txtWidgetSignal, status.signalBars)
+            val mobileOn = MobileDataToggle.isEnabled(context)
+            views.setTextViewText(
+                R.id.lblData,
+                if (mobileOn) {
+                    context.getString(R.string.widget_data_on)
+                } else {
+                    context.getString(R.string.widget_data_off)
+                }
+            )
             views.setTextViewText(R.id.txtWidgetData, status.dataText)
+            views.setTextColor(
+                R.id.lblData,
+                if (mobileOn) Color.parseColor("#0B57D0") else Color.parseColor("#DC2626")
+            )
             views.setTextViewText(
                 R.id.txtClients,
                 context.getString(R.string.widget_clients_fmt, status.connectedClients, status.maxClients)
@@ -384,11 +437,25 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
             val track = if (dark) Color.parseColor("#333333") else Color.parseColor("#E5E7EB")
             val blue = Color.parseColor("#0B57D0")
 
+            views.setTextViewTextSize(R.id.txtWidgetTime, TypedValue.COMPLEX_UNIT_SP, ssp(16f))
+            views.setTextViewTextSize(R.id.txtWidgetNetwork, TypedValue.COMPLEX_UNIT_SP, ssp(12f))
+            views.setTextViewTextSize(R.id.txtApLabel, TypedValue.COMPLEX_UNIT_SP, ssp(11f))
+            views.setTextViewTextSize(R.id.txtWidgetLink, TypedValue.COMPLEX_UNIT_SP, ssp(16f))
+            views.setTextViewTextSize(R.id.txtApMeta, TypedValue.COMPLEX_UNIT_SP, ssp(11f))
+            views.setTextViewTextSize(R.id.txtPassHint, TypedValue.COMPLEX_UNIT_SP, ssp(12f))
+            views.setTextViewTextSize(R.id.btnHotspotToggle, TypedValue.COMPLEX_UNIT_SP, ssp(12f))
+            views.setTextViewTextSize(R.id.txtClients, TypedValue.COMPLEX_UNIT_SP, ssp(12f))
+            views.setTextViewTextSize(R.id.btnTileApps, TypedValue.COMPLEX_UNIT_SP, ssp(13f))
+            views.setTextViewTextSize(R.id.lblData, TypedValue.COMPLEX_UNIT_SP, ssp(9f))
+            views.setTextViewTextSize(R.id.lblSignal, TypedValue.COMPLEX_UNIT_SP, ssp(9f))
+            views.setTextViewTextSize(R.id.txtWidgetData, TypedValue.COMPLEX_UNIT_SP, ssp(10f))
+            views.setTextViewTextSize(R.id.txtWidgetSignal, TypedValue.COMPLEX_UNIT_SP, ssp(10f))
+
             // Status icons (không hiện pin — góc phải hệ thống đã có)
             views.setImageViewBitmap(
                 R.id.imgSignalBars,
                 WidgetMeterBitmap.signalBars(
-                    dp(28), dp(16), status.signalLevel,
+                    sdp(28), sdp(16), status.signalLevel,
                     if (dark) Color.parseColor("#93C5FD") else blue,
                     track
                 )
@@ -396,7 +463,7 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
 
             // Circular meters (SCR01)
             val showMeters = Prefs.widgetShowMeters(context)
-            val meterSize = dp(56)
+            val meterSize = sdp(56)
             views.setViewVisibility(R.id.panelAppShortcuts, View.VISIBLE)
             views.setViewVisibility(R.id.btnTileApps, View.VISIBLE)
             if (showMeters && Prefs.widgetShowData(context)) {
@@ -442,7 +509,7 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
             favIds.forEachIndexed { i, id ->
                 val pkg = favs.getOrNull(i)
                 if (pkg != null) {
-                    val bmp = WidgetAppIcons.iconBitmap(context, pkg, dp(40))
+                    val bmp = WidgetAppIcons.iconBitmap(context, pkg, sdp(56))
                     if (bmp != null) {
                         views.setImageViewBitmap(id, bmp)
                         views.setViewVisibility(id, View.VISIBLE)
@@ -568,6 +635,23 @@ class MobileWifiWidgetProvider : AppWidgetProvider() {
                 return hour >= 19 || hour < 6
             }
             return Prefs.widgetDark(context)
+        }
+
+        /** Phóng to/thu nhỏ + dịch L/R/U/D bằng padding (cỡ chữ chỉnh riêng). */
+        private fun applyLayoutAdjust(views: RemoteViews, context: Context, dens: Float, scale: Float) {
+            val ox = Prefs.widgetOffsetX(context)
+            val oy = Prefs.widgetOffsetY(context)
+            val baseL = 14
+            val baseR = 14
+            val baseT = 10
+            val baseB = 34
+            // Dịch phải → tăng pad trái; dịch xuống → tăng pad trên
+            fun px(dp: Int) = (dp.coerceAtLeast(0) * dens).toInt().coerceAtLeast(0)
+            val padL = px(((baseL - ox) * scale).toInt().coerceAtLeast(0))
+            val padR = px(((baseR + ox) * scale).toInt().coerceAtLeast(0))
+            val padT = px(((baseT - oy) * scale).toInt().coerceAtLeast(0))
+            val padB = px(((baseB + oy) * scale).toInt().coerceAtLeast(0))
+            views.setViewPadding(R.id.widgetRoot, padL, padT, padR, padB)
         }
 
         private fun applyTheme(views: RemoteViews, dark: Boolean) {

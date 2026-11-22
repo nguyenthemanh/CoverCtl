@@ -13,6 +13,7 @@ import android.os.BatteryManager
 class GalaxyWifiApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        LocaleHelper.applySaved(this)
         watchNetworkAndBattery()
     }
 

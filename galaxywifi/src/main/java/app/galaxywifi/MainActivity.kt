@@ -4,7 +4,10 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +17,8 @@ import com.google.android.material.button.MaterialButton
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private val langs = LocaleHelper.languages()
+    private var languageReady = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +35,8 @@ class MainActivity : AppCompatActivity() {
             ""
         }
 
+        bindLanguage()
+        bindLayoutControls()
         bindOptions()
         bindFavoriteSlots()
         AppPermissions.request(this)
@@ -81,6 +88,31 @@ class MainActivity : AppCompatActivity() {
                 } catch (_: Exception) {
                 }
             }
+        }
+        binding.btnToggleMobileData.setOnClickListener {
+            val wasOn = MobileDataToggle.isEnabled(this)
+            val ok = MobileDataToggle.toggle(this)
+            toast(
+                when {
+                    !ok -> getString(R.string.toast_mobile_data_fail)
+                    wasOn -> getString(R.string.toast_mobile_data_off)
+                    else -> getString(R.string.toast_mobile_data_on)
+                }
+            )
+            if (!ok) {
+                try {
+                    startActivity(
+                        Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
+                } catch (_: Exception) {
+                }
+            }
+            binding.root.postDelayed({
+                MobileWifiWidgetProvider.refreshAll(this)
+                refreshPreview()
+                refreshMobileDataButton()
+            }, 1000L)
         }
         binding.btnGrantPerms.setOnClickListener {
             AppPermissions.request(this)
@@ -136,6 +168,7 @@ class MainActivity : AppCompatActivity() {
             toast(getString(R.string.toast_widget_refreshed))
         }
         refreshHotspotButton()
+        refreshMobileDataButton()
         refreshPreview()
     }
 
@@ -144,6 +177,7 @@ class MainActivity : AppCompatActivity() {
         refreshPreview()
         refreshFavoriteButtons()
         refreshHotspotButton()
+        refreshMobileDataButton()
         MobileWifiWidgetProvider.refreshAll(this)
     }
 
@@ -152,6 +186,14 @@ class MainActivity : AppCompatActivity() {
             getString(R.string.btn_hotspot_turn_off)
         } else {
             getString(R.string.btn_hotspot_turn_on)
+        }
+    }
+
+    private fun refreshMobileDataButton() {
+        binding.btnToggleMobileData.text = if (MobileDataToggle.isEnabled(this)) {
+            getString(R.string.btn_mobile_data_off)
+        } else {
+            getString(R.string.btn_mobile_data_on)
         }
     }
 
@@ -181,9 +223,7 @@ class MainActivity : AppCompatActivity() {
         buttons.forEachIndexed { index, btn ->
             val pkg = slots.getOrNull(index).orEmpty()
             if (pkg.isEmpty()) {
-                btn.text = getString(R.string.fav_slot_empty).let {
-                    "Ô ${index + 1} · $it"
-                }
+                btn.text = getString(R.string.fav_slot_fmt, index + 1, getString(R.string.fav_slot_empty))
                 btn.icon = null
             } else {
                 btn.text = getString(
@@ -200,6 +240,85 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun bindLanguage() {
+        binding.spinnerLanguage.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            langs.map { it.label }
+        )
+        val saved = Prefs.languageTag(this)
+        binding.spinnerLanguage.setSelection(
+            langs.indexOfFirst { it.tag == saved }.coerceAtLeast(0)
+        )
+        languageReady = true
+        binding.spinnerLanguage.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    if (!languageReady) return
+                    val tag = langs[position].tag
+                    if (tag == Prefs.languageTag(this@MainActivity)) return
+                    Prefs.setLanguageTag(this@MainActivity, tag)
+                    LocaleHelper.apply(tag)
+                    MobileWifiWidgetProvider.refreshAll(this@MainActivity)
+                    recreate()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
+    }
+
+    private fun bindLayoutControls() {
+        refreshLayoutLabels()
+        binding.btnZoomIn.setOnClickListener {
+            Prefs.setWidgetScalePct(this, Prefs.widgetScalePct(this) + 5)
+            onLayoutChanged()
+        }
+        binding.btnZoomOut.setOnClickListener {
+            Prefs.setWidgetScalePct(this, Prefs.widgetScalePct(this) - 5)
+            onLayoutChanged()
+        }
+        binding.btnMoveLeft.setOnClickListener {
+            Prefs.setWidgetOffsetX(this, Prefs.widgetOffsetX(this) - 4)
+            onLayoutChanged()
+        }
+        binding.btnMoveRight.setOnClickListener {
+            Prefs.setWidgetOffsetX(this, Prefs.widgetOffsetX(this) + 4)
+            onLayoutChanged()
+        }
+        binding.btnMoveUp.setOnClickListener {
+            Prefs.setWidgetOffsetY(this, Prefs.widgetOffsetY(this) - 4)
+            onLayoutChanged()
+        }
+        binding.btnMoveDown.setOnClickListener {
+            Prefs.setWidgetOffsetY(this, Prefs.widgetOffsetY(this) + 4)
+            onLayoutChanged()
+        }
+        binding.btnLayoutReset.setOnClickListener {
+            Prefs.resetWidgetLayout(this)
+            onLayoutChanged()
+        }
+    }
+
+    private fun onLayoutChanged() {
+        refreshLayoutLabels()
+        MobileWifiWidgetProvider.refreshAll(this)
+        toast(getString(R.string.toast_layout_updated))
+    }
+
+    private fun refreshLayoutLabels() {
+        binding.txtLayoutScale.text = getString(R.string.widget_layout_scale, Prefs.widgetScalePct(this))
+        binding.txtLayoutOffset.text = getString(
+            R.string.widget_layout_offset,
+            Prefs.widgetOffsetX(this),
+            Prefs.widgetOffsetY(this)
+        )
     }
 
     private fun bindOptions() {

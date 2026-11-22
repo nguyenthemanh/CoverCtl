@@ -14,9 +14,51 @@ object Prefs {
     private const val KEY_FAV_APPS = "favorite_apps"
     private const val KEY_AP_SSID = "ap_ssid_override"
     private const val KEY_AP_PASS = "ap_password_override"
+    private const val KEY_LANGUAGE = "language_tag"
+    private const val KEY_WIDGET_SCALE = "widget_scale_pct"
+    private const val KEY_WIDGET_OX = "widget_offset_x"
+    private const val KEY_WIDGET_OY = "widget_offset_y"
 
     private fun sp(context: Context) =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
+
+    fun languageTag(context: Context): String =
+        sp(context).getString(KEY_LANGUAGE, LocaleHelper.SYSTEM).orEmpty().ifBlank { LocaleHelper.SYSTEM }
+
+    fun setLanguageTag(context: Context, tag: String) {
+        sp(context).edit().putString(KEY_LANGUAGE, tag).apply()
+    }
+
+    /** 70..130 (%), mặc định 100 */
+    fun widgetScalePct(context: Context): Int =
+        sp(context).getInt(KEY_WIDGET_SCALE, 100).coerceIn(70, 130)
+
+    fun setWidgetScalePct(context: Context, pct: Int) {
+        sp(context).edit().putInt(KEY_WIDGET_SCALE, pct.coerceIn(70, 130)).apply()
+    }
+
+    /** -40..40 dp */
+    fun widgetOffsetX(context: Context): Int =
+        sp(context).getInt(KEY_WIDGET_OX, 0).coerceIn(-40, 40)
+
+    fun setWidgetOffsetX(context: Context, dp: Int) {
+        sp(context).edit().putInt(KEY_WIDGET_OX, dp.coerceIn(-40, 40)).apply()
+    }
+
+    fun widgetOffsetY(context: Context): Int =
+        sp(context).getInt(KEY_WIDGET_OY, 0).coerceIn(-40, 40)
+
+    fun setWidgetOffsetY(context: Context, dp: Int) {
+        sp(context).edit().putInt(KEY_WIDGET_OY, dp.coerceIn(-40, 40)).apply()
+    }
+
+    fun resetWidgetLayout(context: Context) {
+        sp(context).edit()
+            .putInt(KEY_WIDGET_SCALE, 100)
+            .putInt(KEY_WIDGET_OX, 0)
+            .putInt(KEY_WIDGET_OY, 0)
+            .apply()
+    }
 
     fun widgetDark(context: Context): Boolean = sp(context).getBoolean(KEY_WIDGET_DARK, false)
     fun setWidgetDark(context: Context, dark: Boolean) {
