@@ -81,8 +81,11 @@
     <string name="uninstall_selected_none">Đã chọn gỡ: 0 app</string>
     <string name="cmd_uninstall">Gỡ ứng dụng</string>
     <string name="section_open_on_cover">Mở app trên màn ngoài</string>
+    <string name="hint_cover_nav">Nếu mất phím Back/Home/Recents trên màn ngoài: bấm «Khôi phục thanh điều hướng».</string>
     <string name="btn_launcher">Launcher</string>
     <string name="btn_settings">Cài đặt</string>
+    <string name="btn_restore_nav">Khôi phục thanh điều hướng</string>
+    <string name="cmd_restore_nav">Khôi phục thanh điều hướng màn ngoài</string>
     <string name="section_cover_scale">Thu / phóng giao diện màn ngoài</string>
     <string name="dpi_value">DPI: %1$d</string>
     <string name="btn_small">Nhỏ</string>

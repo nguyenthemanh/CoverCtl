@@ -166,6 +166,11 @@ class MainActivity : AppCompatActivity() {
                 CoverCommands.openSettingsOnCover(currentProfile())
             }
         }
+        binding.btnRestoreNav.setOnClickListener {
+            runCmd(getString(R.string.cmd_restore_nav)) {
+                CoverCommands.restoreCoverNavigation(currentProfile())
+            }
+        }
 
         binding.btnSmall.setOnClickListener { applyDpi(260) }
         binding.btnNormal.setOnClickListener { applyDpi(340) }
@@ -473,7 +478,7 @@ class MainActivity : AppCompatActivity() {
             binding.btnAaUnlock, binding.btnAaSettings, binding.btnAaStatus,
             binding.btnUninstallPick, binding.btnUninstallPickSystem,
             binding.btnUninstallRun, binding.btnUninstallKeepData,
-            binding.btnLauncher, binding.btnSettings,
+            binding.btnLauncher, binding.btnSettings, binding.btnRestoreNav,
             binding.btnSmall, binding.btnNormal, binding.btnLarge, binding.btnXlarge,
             binding.btnResetDpi, binding.seekDpi
         ).forEach { it.isEnabled = ok }

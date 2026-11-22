@@ -81,8 +81,11 @@
     <string name="uninstall_selected_none">アンインストール選択：0 アプリ</string>
     <string name="cmd_uninstall">アプリをアンインストール</string>
     <string name="section_open_on_cover">カバー画面でアプリを開く</string>
+    <string name="hint_cover_nav">カバーで戻る/ホーム/履歴キーが消えたら「ナビゲーションバーを復元」を押してください。</string>
     <string name="btn_launcher">ランチャー</string>
     <string name="btn_settings">設定</string>
+    <string name="btn_restore_nav">ナビゲーションバーを復元</string>
+    <string name="cmd_restore_nav">カバーのナビゲーションバーを復元</string>
     <string name="section_cover_scale">カバー UI スケール</string>
     <string name="dpi_value">DPI: %1$d</string>
     <string name="btn_small">小</string>

@@ -66,7 +66,40 @@ object CoverCommands {
     }
 
     /**
-     * Full cover / Fold màn mở: dual + physical size + DPI + launcher.
+     * Hiện lại thanh điều hướng / SystemUI trên màn phụ (cover).
+     * Samsung hay để show_navigation_for_subscreen=0 → mất Back/Home/Recents.
+     */
+    fun restoreCoverNavigation(selected: DeviceProfile): Shell.Result {
+        val profile = resolveProfile(selected)
+        val d = profile.coverDisplay
+        return Shell.exec(
+            """
+            echo '=== Khôi phục điều hướng màn ngoài ==='
+            settings put secure show_navigation_for_subscreen 1
+            settings put system large_cover_screen_navigation 1
+            settings put system large_cover_screen_apps 1
+            settings put global navigation_bar_gesture_while_hidden 0
+            settings put secure navigation_mode 0
+            settings delete global policy_control 2>/dev/null || true
+            cmd overlay disable com.android.internal.systemui.navbar.transparent 2>/dev/null || true
+            cmd overlay disable com.android.internal.systemui.navbar.gestural 2>/dev/null || true
+            cmd overlay disable com.samsung.internal.systemui.navbar.sec_gestural 2>/dev/null || true
+            cmd overlay disable com.samsung.internal.systemui.navbar.sec_gestural_no_hint 2>/dev/null || true
+            cmd overlay disable com.samsung.internal.systemui.navbar.gestural_no_hint 2>/dev/null || true
+            cmd overlay enable com.android.internal.systemui.navbar.threebutton
+            cmd device_state state ${profile.dualState}
+            killall com.android.systemui 2>/dev/null || true
+            sleep 1.5
+            am start --display $d --activity-clear-task -n com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity 2>/dev/null || am start --display $d -a android.intent.action.MAIN -c android.intent.category.HOME
+            echo show_navigation_for_subscreen=$(settings get secure show_navigation_for_subscreen)
+            cmd overlay list | grep -E 'navbar' || true
+            echo 'Xong: 3 nút điều hướng trên màn ngoài'
+            """.trimIndent().lines().joinToString("; ")
+        )
+    }
+
+    /**
+     * Full cover / Fold màn mở: dual + physical size + DPI + nav + launcher.
      * Sửa cửa sổ dọc hẹp giữa màn ngoài.
      */
     fun fixCoverFullUi(selected: DeviceProfile): Shell.Result {
@@ -82,6 +115,16 @@ object CoverCommands {
             """
             echo '=== Full màn ngoài / Fold màn MỞ ==='
             cmd device_state state 4
+            settings put secure show_navigation_for_subscreen 1
+            settings put system large_cover_screen_navigation 1
+            settings put system large_cover_screen_apps 1
+            settings put global navigation_bar_gesture_while_hidden 0
+            settings put secure navigation_mode 0
+            settings delete global policy_control 2>/dev/null || true
+            cmd overlay disable com.android.internal.systemui.navbar.transparent 2>/dev/null || true
+            cmd overlay disable com.android.internal.systemui.navbar.gestural 2>/dev/null || true
+            cmd overlay disable com.samsung.internal.systemui.navbar.sec_gestural 2>/dev/null || true
+            cmd overlay enable com.android.internal.systemui.navbar.threebutton
             echo 'TRƯỚC:'
             wm size -d $d
             wm density -d $d
@@ -95,8 +138,10 @@ object CoverCommands {
             wm size -d $d
             wm density -d $d
             cmd device_state state
+            killall com.android.systemui 2>/dev/null || true
+            sleep 1.2
             am start --display $d --activity-clear-task -n com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity 2>/dev/null || am start --display $d -a android.intent.action.MAIN -c android.intent.category.HOME
-            echo 'Xong: size=748x720 density=$dpi (full cover, Fold màn mở)'
+            echo 'Xong: size=748x720 density=$dpi + nav màn ngoài'
             """.trimIndent().lines().joinToString("; ")
         )
     }
@@ -204,17 +249,28 @@ object CoverCommands {
     fun openLauncherOnCover(profile: DeviceProfile): Shell.Result {
         val p = resolveProfile(profile)
         ensureDual(p)
+        val d = p.coverDisplay
         return Shell.exec(
-            "am start --display ${p.coverDisplay} -n " +
-                "com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity"
+            """
+            settings put secure show_navigation_for_subscreen 1
+            settings put system large_cover_screen_navigation 1
+            settings put system large_cover_screen_apps 1
+            cmd overlay enable com.android.internal.systemui.navbar.threebutton 2>/dev/null || true
+            am start --display $d --activity-clear-task -n com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity 2>/dev/null || am start --display $d -a android.intent.action.MAIN -c android.intent.category.HOME
+            """.trimIndent().lines().joinToString("; ")
         )
     }
 
     fun openSettingsOnCover(profile: DeviceProfile): Shell.Result {
         val p = resolveProfile(profile)
         ensureDual(p)
+        val d = p.coverDisplay
         return Shell.exec(
-            "am start --display ${p.coverDisplay} -n com.android.settings/.Settings"
+            """
+            settings put secure show_navigation_for_subscreen 1
+            settings put system large_cover_screen_navigation 1
+            am start --display $d -n com.android.settings/.Settings
+            """.trimIndent().lines().joinToString("; ")
         )
     }
 }

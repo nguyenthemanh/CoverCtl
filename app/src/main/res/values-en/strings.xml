@@ -81,8 +81,11 @@
     <string name="uninstall_selected_none">Selected to uninstall: 0 apps</string>
     <string name="cmd_uninstall">Uninstall apps</string>
     <string name="section_open_on_cover">Open app on cover screen</string>
+    <string name="hint_cover_nav">If Back/Home/Recents disappear on the cover: tap «Restore navigation bar».</string>
     <string name="btn_launcher">Launcher</string>
     <string name="btn_settings">Settings</string>
+    <string name="btn_restore_nav">Restore navigation bar</string>
+    <string name="cmd_restore_nav">Restore cover navigation bar</string>
     <string name="section_cover_scale">Cover UI scale</string>
     <string name="dpi_value">DPI: %1$d</string>
     <string name="btn_small">Small</string>

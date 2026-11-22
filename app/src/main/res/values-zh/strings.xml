@@ -81,8 +81,11 @@
     <string name="uninstall_selected_none">已选卸载：0 个应用</string>
     <string name="cmd_uninstall">卸载应用</string>
     <string name="section_open_on_cover">在外屏打开应用</string>
+    <string name="hint_cover_nav">若外屏缺少返回/主页/最近任务键：点「恢复导航栏」。</string>
     <string name="btn_launcher">启动器</string>
     <string name="btn_settings">设置</string>
+    <string name="btn_restore_nav">恢复导航栏</string>
+    <string name="cmd_restore_nav">恢复外屏导航栏</string>
     <string name="section_cover_scale">外屏界面缩放</string>
     <string name="dpi_value">DPI：%1$d</string>
     <string name="btn_small">小</string>
